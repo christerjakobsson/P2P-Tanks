@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>P2P Tanks</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+		<link rel="stylesheet" type="text/css" href="css/tanks.css">
+	</head>
+
+	<body>
+		<h1>Peer to Peer Tank Game</h1>
+		
+		<div id="main">
+			<form id="start_game_form" action="game.html" method="GET">
+				<div id="new_game" class="option">
+					<h2>New Game </h2>
+					
+					<select name="mode">
+						<option value="0"> Singleplayer></option>
+						<option value="1">Multiplayer</option>
+					</select>
+				</div>
+				<div id="or" class="option">
+					 - OR -
+				</div>
+				<div id="new_game" class="option">
+					<h2>Join Game</h2>
+					<label for="join_id">Join Player:</label><input id="join_id" type="text" value="" >
+				</div>
+				<div id="start_game_form_button">
+					<input type="submit" value="Let's go!">
+				</div>
+			</form>
+		</div>
+		
+	</body>
+</html>
