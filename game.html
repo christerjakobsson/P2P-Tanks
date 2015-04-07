@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>P2P Tanks</title>
+		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="css/tanks.css">
+		
+		<script type="text/javascript" src="js/lib/jquery-2.0.2.min.js"></script>
+		<script type="text/javascript" src="js/lib/jquery.hotkeys.js"></script>
+		<script type="text/javascript" src="js/lib/peer.min.js"></script>
+		
+		<!-- FULL SOURCES FOR DEPLOYMENT: -->
+		<script type="text/javascript" src="js/bomberman.js"></script>
+		<script type="text/javascript" src="js/conf.js"></script>
+		<script type="text/javascript" src="js/helper.js"></script>
+		<script type="text/javascript" src="js/game.js"></script>
+		<script type="text/javascript" src="js/p2p_comm.js"></script>
+		<script type="text/javascript" src="js/entity.js"></script>
+		<script type="text/javascript" src="js/player.js"></script>
+		<script type="text/javascript" src="js/player_manager.js"></script>
+		<script type="text/javascript" src="js/lounge.js"></script>
+		<script type="text/javascript" src="js/view.js"></script>
+		<script type="text/javascript" src="js/map.js"></script>
+		<script type="text/javascript" src="js/bomb.js"></script>
+		<script type="text/javascript" src="js/controls.js"></script>
+		
+		<!-- MINIFIED SOURCES FOR DEPLOYMENT: -->
+		<script type="text/javascript" src="js/conf.js"></script>
+		<!-- <script type="text/javascript" src="/js/bomberman.min.js"></script> -->
+ 	</head>
+ 	
+ 	<body onload="init('lounge')">
+ 		<div id="main">
+ 			<h1>Game lounge</h1>
+ 			
+ 			<div id="lounge">
+ 				<h2>Game Help</h2>
+ 				
+ 				<ul>
+ 					<li>Arrow keys: Movement.</li>
+ 					<li>[b]: Drop bomb.</li>
+ 				</ul>
+ 				
+ 				<div id="multiplayer_conf">
+ 					<h2>Your player</h2>
+ 					
+ 					<p>Player ID: <span id="player_id"></span> <em><(<span id="player_conn_status" class="status_unknown">Wait...</span>)</em></p>
+ 					<form id="save_player_form" action="#">
+ 					<br>
+ 					<label for="ready">Are you ready?</label> <input id="ready" name="ready" value="ready" type="checkbox" > <br>
+ 					</form>
+ 				</div>
+ 				<div id="singleplayer_conf">
+ 					<input id="singleplayer_start_btn" type"button" value="Go!">
+ 				</div>
+ 			</div>
+ 			
+ 			<div id="game">
+ 				<canvas style="border: 1px solid white" id="canvas" width="640" height="640"></canvas>
+ 			</div>
+ 		</div>
+ 	</body>
+ </html>
