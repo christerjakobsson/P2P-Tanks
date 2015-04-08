@@ -19,7 +19,7 @@ BombClass.constructor = BombClass;
  */
 function BombClass() {
     // Set cell margins for bomb explosions in px.
-    this._initMargin = 25;
+    this._initialMargin = 25;
     this._finalMargin = 5;
     this._color = red; // set color
     this._owner = null; // ref to a PlayerClass
@@ -97,5 +97,156 @@ BombClass.prototype.dropByPlayer = function(player) {
  * Let the bomb explode
  */
 BombClass.prototype.explode = function() {
-    //TODO
+    if(this._strength == 0) return ;
+
+    console.log("BOOM");
+
+    // start the explosion
+    this._exploding = true; // will be checked in draw() function
+    this._explWave = 1;
+    this._explStartMs = currentMs();
+    this._explBlocked = new Array(); //array of blocket field directions
+}
+
+/**
+ * After the explosion this function will be called.
+ */
+BombClass.prototype.stopExplosion = function() {
+    console.log("BUFF");
+
+    this._exploding = false;
+    this._explWave  = 0;
+    this._explStartMs = 0;
+
+    // set to free celll
+    mapCellSet(this.x, this.y, ' ');
+
+    // remove me
+    this._view.removeEntity(this);
+}
+
+
+/**
+ * Private method to check if an explosion direction in the direction of
+ * <dx>, <dy> is blocket.
+ *
+ * @param dx
+ * @param dy
+ */
+BombClass.prototype.explDirectionIsBlocked = function(dx, dy) {
+   if(this._explBlocked > 0) {
+       for(var b = 0; b < this._explBlocked.length; b++) {
+           // console.log('blocked dir is ' + dx + ', ' + dy);
+           if(blockedCellDir[0] == dx  && blockedCellDir[1] == dy) {
+               return true;
+           }
+       }
+   }
+    return false;
+}
+
+/**
+ * Check if a player was hit on explosion field at position <ex>, <ey>.
+ */
+BombClass.prototype._checkPlayerHits(ex, ey) {
+    var players = this._playerManager.getPlayers();
+
+    // go through all players
+    for (var i = 0; i < players.length; i++) {
+        var player = players[i];
+        if(player.getAlive() === true && player.x == ex && player.y == ey) { // wee hit a player!
+            player.setAlive(false);
+            this._playerManager.checkGameStatus();
+        }
+    }
+}
+
+BombClass.prototype.drawExplAnim = function() {
+    var progress = currentMs() - this._explStartMs;
+    if(progress >= this._explMaxMs) { // check if we can go to the next explosion wave
+        if(this._explWave >= this._strength) { // check if we can stop the explosion
+            this.stopExplosion();
+            return;
+        }
+
+        // go to the next wave
+        this._explStartMs = currentMs();
+        this._explWave++;
+
+        //progress percentage
+        var progrPerc = progress / this._explMaxMs;
+
+        // go in each direction (dy, dx)
+        for(var dy = -1; dy <= 1; dy++) {
+            for(var dx = -1; dx <= 1; dx++) {
+                if(Math.abs(dx) + Math.abs(dy) == 2) continue; // no explosion on diagonal fields
+                if(this._explDirectionIsBlocked(dx, dy)) continue; // no explosion in blocked directions
+
+                // calculate position of the explosion wave field
+                var posX = this.x + dx * this._explWave;
+                var posY = this.y + dy * this._explWave;
+
+                // check limits
+                if(posX < 0 || posX >= MapDimensions.w
+                    || posY < 0 || posY >= MapDimensions.h) continue;
+
+                // check if we hit a player
+                this._checkPlayerHits(posX, posY);
+
+                if(dx == 0 && dy == 0) continue; // no explosion in own field
+
+                // get the cell type of this field
+                var cellType = MapCellType(posX, posY);
+
+                if(cellType === 'X') { // blocked
+                    //console.log("added blocked dir "+ dx + ", " + dy);
+                    this._explBlocked.push(new Array(dx, dy));
+                    continue;
+                }
+
+                if(cellType === 'x') { // break this!
+                    var newType = ' ';
+                    if(this._owner.getType() !== PlayerTypeRemote)  // if this bomb is owned by the local player)
+                        && Math.random() < Conf.upgradePossibility) { // and we're lucky
+                        newType = 'U'; // set an upgrade in this cell
+
+                        if(gameMode === GameModeMultiplayer) {
+                            //bring this news to our peers
+                            var msg = {
+                                id:     this._owner.getId(),
+                                type:   MsgTypePlayerUpgrade,
+                                pos:    new Array(posX, posY)
+                            };
+                            this._p2pComm.sendAll(msg);
+                        }
+                    }
+
+                    mapCellSet(posX, posY, newType);
+                }
+
+                // calculate the explosion coplor
+                var colorR = 255 - progrPerc * 100;
+                var colorG = 30 + progrPerc * 127;
+                var colorAA = 1.0 - progrPerc;
+                style = 'rgba(' + colorR.toFixed() + ', ' +colorG.toFixed() + ', 0, ' + colorA.toFixed() + ')';
+
+
+                // draw the cell with the explosion color
+                this._view.drawCell(posX, posY, style);
+            }
+        }
+    }
+
+    /**
+     * Draw the ticking bomb animation with a pulsating, growing bomb
+     */
+    BombClass.prototype.drawTickingBombAnim = function () {
+        this._tickingBombFrame = (this._tickingBombFrame + 1) % 60;
+        var dM = this._finalMargin - this._initialMargin;
+        var min = this._initialMargin + (currentMs() - this._bombDropTime) * dM / this._timerMs;
+        var a = this._finalMargin - dM;
+        var margin = min + a/2.0 * Math.sin(Math.PI * (this._tickingBombFrame / 60.0));
+
+        this._view.drawCellCircle(this.x, this.y, margin, this._color);
+    }
 }
