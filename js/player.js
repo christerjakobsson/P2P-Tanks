@@ -70,14 +70,14 @@ PlayerClass.prototype.setup = function(viewRef, playerManagerRef, p2pRef) {
         this._p2pComm.setMsgHandler(MsgTypePlayerPos,  this, this.receivePos, true);
         this._p2pComm.setMsgHandler(MsgTypePlayerBomb, this, this.receiveBomb, true);
     }
-}
+};
 
 /**
  * Return the player type.
  */
 PlayerClass.prototype.getType = function() {
     return this._type;
-}
+};
 
 /**
  * Set the player type to <t> being one of the PlayerType* values.
@@ -86,7 +86,7 @@ PlayerClass.prototype.setType = function(t) {
     this._type = t;
 
     return this;
-}
+};
 
 /**
  * Set the player alive status to <v> true/false.
@@ -96,21 +96,21 @@ PlayerClass.prototype.setAlive = function(v) {
     this._alive = v;
 
     return this;
-}
+};
 
 /**
  * Get the player alive status.
  */
 PlayerClass.prototype.getAlive = function() {
     return this._alive;
-}
+};
 
 /**
  * Return the player name
  */
 PlayerClass.prototype.getName = function() {
     return this._name;
-}
+};
 
 /**
  * Set the player name to string <s>.
@@ -119,14 +119,14 @@ PlayerClass.prototype.setName = function(s) {
     this._name = s;
 
     return this;
-}
+};
 
 /**
  * Return the peer id.
  */
 PlayerClass.prototype.getId = function() {
     return this._id;
-}
+};
 
 /**
  * Set the peer id to <id>.
@@ -135,14 +135,14 @@ PlayerClass.prototype.setId = function(id) {
     this._id = id;
 
     return this;
-}
+};
 
 /**
  * Return the player status.
  */
 PlayerClass.prototype.getStatus = function() {
     return this._status;
-}
+};
 
 /**
  * Set the player status to <status>
@@ -151,14 +151,14 @@ PlayerClass.prototype.setStatus = function(status) {
     this._status = status;
 
     return this;
-}
+};
 
 /**
  * Set the player color.
  */
 PlayerClass.prototype.getColor = function() {
     return this._color;
-}
+};
 
 /**
  * Get the player color.
@@ -167,7 +167,7 @@ PlayerClass.prototype.setColor = function(c) {
     this._color = c;
 
     return this;
-}
+};
 
 /**
  * Will set the spawn point and the current entity coordinates
@@ -178,21 +178,21 @@ PlayerClass.prototype.setSpawnPoint = function(p) {
     this.set(p[0], p[1]);
 
     return this;
-}
+};
 
 /**
  * Return the spawn point
  */
 PlayerClass.prototype.getSpawnPoint = function() {
     return this._spawnPoint;
-}
+};
 
 /**
  * Return the bomb strength of this player.
  */
 PlayerClass.prototype.getBombStrength = function() {
     return this._bombStrength;
-}
+};
 
 /**
  * Increase the bomb strength of this player by 1 until Conf.maxBombStrength.
@@ -203,7 +203,7 @@ PlayerClass.prototype.increaseBombStrength = function() {
 
         console.log('bomb strength of player ' + this._id + ' is now ' + this._bombStrength);
     }
-}
+};
 
 /**
  * Draw the player when he is alive.
@@ -212,7 +212,7 @@ PlayerClass.prototype.draw = function() {
     if (this._alive) {
         this._view.drawCellRhombus(this.x, this.y, this._margin, this._color);
     }
-}
+};
 
 /**
  * Move the player by <dX>, <dY>.
@@ -236,7 +236,7 @@ PlayerClass.prototype.moveBy = function(dX, dY) {
         this.set(destX, destY);                     // set the position
         this._checkDestinationCell(destX, destY);   // check if the new cell is some kind of special cell (e.g. upgrade)
     }
-}
+};
 
 /**
  * Drop a bomb.
@@ -250,7 +250,7 @@ PlayerClass.prototype.dropBomb = function() {
 
     // drop the bomb
     this._dropBombByPlayer(this);
-}
+};
 
 /**
  * Create a new BombClass object and let it drop by <player>.
@@ -261,7 +261,7 @@ PlayerClass.prototype._dropBombByPlayer = function(player) {
     var bomb = new BombClass();
     bomb.setup(this._view, this._playerManager, this._p2pComm);
     bomb.dropByPlayer(player);
-}
+};
 
 /**
  * Send our position <x>, <y> to the peers (MP only).
@@ -278,7 +278,7 @@ PlayerClass.prototype.sendPos = function(x, y) {
 
     // send it to all peers
     this._p2pComm.sendAll(msg);
-}
+};
 
 /**
  * P2P message handler callback for type MsgTypePlayerPos.
@@ -291,7 +291,7 @@ PlayerClass.prototype.receivePos = function(conn, msg) {
     // set the position
     this.set(msg.pos[0], msg.pos[1]);
     this._checkDestinationCell(msg.pos[0], msg.pos[1]);
-}
+};
 
 /**
  * Send that we've dropped a bomb at <x>, <y>. Our peers should know!
@@ -307,7 +307,7 @@ PlayerClass.prototype.sendBombDrop = function(x, y) {
 
     // send it to all peers
     this._p2pComm.sendAll(msg);
-}
+};
 
 /**
  * P2P message handler callback for type MsgTypePlayerBomb.
@@ -320,7 +320,7 @@ PlayerClass.prototype.receiveBomb = function(conn, msg) {
 
     // let the player drop the bomb
     this._dropBombByPlayer(this);
-}
+};
 
 /**
  * Check if it is special cell type on position <destX>, <destY>.
@@ -330,4 +330,4 @@ PlayerClass.prototype._checkDestinationCell = function(destX, destY) {
         this.increaseBombStrength();            // increase the bomb strength
         mapCellSet(destX, destY, ' ');          // reset to free field
     }
-}
+};

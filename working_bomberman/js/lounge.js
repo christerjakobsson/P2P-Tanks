@@ -38,7 +38,7 @@ LoungeClass.prototype.setup = function(joinId) {
 	} else {
 		this._setupMP(joinId);
 	}
-}
+};
 
 /**
  * Make special setup for singleplayer mode
@@ -52,7 +52,7 @@ LoungeClass.prototype._setupSP = function() {
 		$('#lounge').hide();
 		init('game');	// start the game
 	}.bind(this));
-}
+};
 
 /**
  * Make special setup for multiplayer mode
@@ -100,7 +100,7 @@ LoungeClass.prototype._setupMP = function(joinId) {
 		$('#player_conn_status').text('oops!');
 		$('#player_conn_status').removeClass('status_unknown').addClass('not_ok');
 	}.bind(this));
-}
+};
 
 /**
  * Start the game (depending on game mode).
@@ -120,14 +120,14 @@ LoungeClass.prototype._startGame = function() {
 	$('#main > h1').hide();
     game.startGame();
     $('#game').show();
-}
+};
 
 /**
  * Callback function for "joining a peer" event. <peerId> is the peer we're joining.
  */
 LoungeClass.prototype._joiningPeer = function(peerId) {
 	$('#player_conn_status').text('joining ' + peerId + '...');
-}
+};
 
 /**
  * Callback function for "joined a peer" event. <peerId> is the peer we've joined.
@@ -137,7 +137,7 @@ LoungeClass.prototype._joinedPeer = function(peerId) {
 
 	// we are connected to a new player. send him our status
 	this._sendOwnStatus(peerId);
-}
+};
 
 /**
  * Callback function for "error while joining a peer" event. <peerId> is the peer we couldn't join.
@@ -145,7 +145,7 @@ LoungeClass.prototype._joinedPeer = function(peerId) {
 LoungeClass.prototype._errorJoiningPeer = function(err) {
 	$('#player_conn_status').text('oops! error joining!');
 	$('#player_conn_status').removeClass('status_unknown').addClass('not_ok');
-}
+};
 
 /**
  * Post connection setup. This function is called when we received a peer id.
@@ -177,7 +177,7 @@ LoungeClass.prototype._postConnectionSetup = function() {
 
 	// add our player to the list
 	this._addPlayerToList(playerId, playerName, this._ownPlayer.getColor());
-}
+};
 
 /**
  * Add a new player with <id>, <playerName> and <playerColor> to the player list
@@ -209,7 +209,7 @@ LoungeClass.prototype._addPlayerToList = function(id, playerName, playerColor) {
 	var htmlId = 'playerlist_id_' + id;
 	var elem = '<li id="' + htmlId + '" class="not_ok"><span style="background-color:' + playerColor + '">&nbsp;&nbsp;&nbsp;</span>&nbsp;' + playerName + '</li>';
 	list.append(elem);
-}
+};
 
 /**
  * Update an existing player with <id> and set his new <playerName> and <status>.
@@ -243,7 +243,7 @@ LoungeClass.prototype._updatePlayerList = function(id, playerName, status) {
 	} else if (status === PlayerStatusReady) {
 		elem.removeClass('not_ok').addClass('ok');
 	}
-}
+};
 
 /**
  * Callback action when the local player changed the name to <v>.
@@ -254,7 +254,7 @@ LoungeClass.prototype._nameChanged = function(v) {
 
 	// update the list
 	this._updatePlayerList(this._ownPlayer.getId(), this._ownPlayer.getName(), this._ownPlayer.getStatus());
-}
+};
 
 /**
  * Callback action when the local player changed the status to <v>.
@@ -271,7 +271,7 @@ LoungeClass.prototype._statusChanged = function(v) {
 
 	// update the list
 	this._updatePlayerList(this._ownPlayer.getId(), this._ownPlayer.getName(), this._ownPlayer.getStatus());
-}
+};
 
 /**
  * P2P message handler function for receiving a message <msg> from connection <conn>
@@ -290,7 +290,7 @@ LoungeClass.prototype._receivedPlayerMetaData = function(conn, msg) {
 			this._addPlayerToList(msg.id, msg.name, null);	// add him as new player
 		}
 	}
-}
+};
 
 /**
  * Send our own status (id, name, player status) to a peer <receiverId> or
@@ -298,7 +298,7 @@ LoungeClass.prototype._receivedPlayerMetaData = function(conn, msg) {
  */
 LoungeClass.prototype._sendOwnStatus = function(receiverId) {
 	this._p2pComm.sendPlayerMetaData(receiverId, this._ownPlayer.getId(), this._ownPlayer.getName(), this._ownPlayer.getStatus());
-}
+};
 
 /**
  * P2P event handler function when a new peer with <peerId> connected.
@@ -308,7 +308,7 @@ LoungeClass.prototype._playerConnected = function(peerId) {
 
 	// send this new peer some information about ourselfs!
 	this._sendOwnStatus(peerId);
-}
+};
 
 /**
  * P2P event handler function when a peer with <peerId> disconnected.
@@ -329,4 +329,4 @@ LoungeClass.prototype._playerDisconnected = function(peerId) {
 		var playerNameField = $('#playerlist_id_' + peerId);
 		if (playerNameField) playerNameField.detach();
 	}
-}
+};

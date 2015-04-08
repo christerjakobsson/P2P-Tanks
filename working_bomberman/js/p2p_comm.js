@@ -35,21 +35,21 @@ P2PCommClass.prototype.setup = function() {
     // set default message handlers:
     // callback for receiving a message with known peers
     this.setMsgHandler(MsgTypeKnownPeers, this, this._receiveKnownPeers);
-}
+};
 
 /**
  *  Return the peer.js Peer object
  */
 P2PCommClass.prototype.getPeer = function() {
     return this._peer;
-}
+};
 
 /**
  *  Return the peer id
  */
 P2PCommClass.prototype.getPeerId = function() {
     return this._peerId;
-}
+};
 
 /**
  *  Create a new peer. Pass a function <successFn> function(id) that will be called when
@@ -102,7 +102,7 @@ P2PCommClass.prototype.createPeer = function(successFn, errorFn) {
 
     // set shortcut
     this._conn = this._peer.connections;
-}
+};
 
 /**
  *  Join a peer with id <peerId>.
@@ -137,7 +137,7 @@ P2PCommClass.prototype.joinPeer = function(peerId) {
 
     // set data receiver function
     this._setupConnectionHandlers(conn);
-}
+};
 
 /**
  * Disconnect from a peer with id <peerId>.
@@ -145,7 +145,7 @@ P2PCommClass.prototype.joinPeer = function(peerId) {
 P2PCommClass.prototype.disconnectFromPeer = function(peerId) {
     console.log('closing connection to peer ' + peerId);
     this._conn[peerId].peerjs.close();
-}
+};
 
 /**
  * Will set a message handler callback function <cbFn> (on object <cbObj>)
@@ -184,7 +184,7 @@ P2PCommClass.prototype.setMsgHandler = function(type, cbObj, cbFn, add) {
     } else {    // just set the handler for this type, possibly dismissing a previews callback
         this._msgHandler[type] = newHndl;
     }
-}
+};
 
 /**
  * Set a handlers for connection establish events on <cbObj>:
@@ -198,7 +198,7 @@ P2PCommClass.prototype.setConnEstablishingHandler = function(cbObj, cbFnJoining,
     this._connEstablishingHandler.push({obj: cbObj, fn: cbFnJoining});
     this._connEstablishingHandler.push({obj: cbObj, fn: cbFnJoined});
     this._connEstablishingHandler.push({obj: cbObj, fn: cbFnError});
-}
+};
 
 /**
  * Sets a handler function <cbFn> on object <cbObj> for
@@ -209,7 +209,7 @@ P2PCommClass.prototype.setConnEstablishingHandler = function(cbObj, cbFnJoining,
 P2PCommClass.prototype.setConnOpenedHandler = function(cbObj, cbFn) {
     this._connOpenedHandler.obj = cbObj;
     this._connOpenedHandler.fn  = cbFn;
-}
+};
 
 /**
  * Sets a handler function <cbFn> on object <cbObj> for
@@ -220,7 +220,7 @@ P2PCommClass.prototype.setConnOpenedHandler = function(cbObj, cbFn) {
 P2PCommClass.prototype.setConnClosedHandler = function(cbObj, cbFn) {
     this._connClosedHandler.obj = cbObj;
     this._connClosedHandler.fn  = cbFn;
-}
+};
 
 /**
  * Send player meta data (message of type MsgTypePlayerMetaData) to <receivedId>:
@@ -244,7 +244,7 @@ P2PCommClass.prototype.sendPlayerMetaData = function(receiverId, pl_id, pl_name,
     } else {    // send to specific peer id
         this.sendTo(receiverId, msg);
     }
-}
+};
 
 /**
  * Send a message <msg> to all known peers (except self of course).
@@ -255,7 +255,7 @@ P2PCommClass.prototype.sendAll = function(msg) {
         var c = this._conn[peerId].peerjs;
         c.send(msg);
     }
-}
+};
 
 /**
  * Send a message <msg> to a peer with id <receiverId>.
@@ -263,7 +263,7 @@ P2PCommClass.prototype.sendAll = function(msg) {
 P2PCommClass.prototype.sendTo = function(receiverId, msg) {
     console.log('sending message of type ' + msg.type + ' to peer ' + receiverId);
     this._conn[receiverId].peerjs.send(msg);
-}
+};
 
 /**
  * Send the peer ids of all known peers (except self) to another peer with id <pid>.
@@ -280,7 +280,7 @@ P2PCommClass.prototype.sendKnownPeers = function(pid) {
 
     // send the message of type MsgTypeKnownPeers.
     this.sendTo(pid, {type: MsgTypeKnownPeers, peers: knownPeers});
-}
+};
 
 /**
  * Callback function for an "incoming connection" event. Receives
@@ -294,7 +294,7 @@ P2PCommClass.prototype._incomingConnection = function(conn) {
 
     // set up the basic connection handlers
     this._setupConnectionHandlers(conn);
-}
+};
 
 /**
  * Message handler for message of type MsgTypeKnownPeers. When this message
@@ -321,7 +321,7 @@ P2PCommClass.prototype._receiveKnownPeers = function(conn, msg) {
             this.joinPeer(receivedPeerId);
         }
     }
-}
+};
 
 /**
  * Set up connection event handlers for a connection <conn>.
@@ -348,7 +348,7 @@ P2PCommClass.prototype._setupConnectionHandlers = function(conn) {
         console.log('connection closed from peer ' + peerId);
         this._connClosedHandler.fn.call(this._connClosedHandler.obj, peerId);
     }.bind(this, conn.peer));
-}
+};
 
 /**
  * Handler for incoming message <msg> from a peer with connection <conn>.
@@ -373,4 +373,4 @@ P2PCommClass.prototype._incomingData = function(conn, msg) {
     } else {    // there is no handler for this type
         console.err('no msg handler for type ' + msg.type);
     }
-}
+};

@@ -17,7 +17,7 @@ Array.prototype.shuffle = function() {
     this[i] = this[rand]; 
     this[rand] = tmp;
   }
-}
+};
 
 /**
  * Will return the next animation frame function.

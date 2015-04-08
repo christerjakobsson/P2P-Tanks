@@ -99,14 +99,14 @@ MapClass.prototype.setP2PComm = function(p2pCommRef) {
 
 	// set a message handler for "upgrade" messages
     this._p2pComm.setMsgHandler(MsgTypePlayerUpgrade,   this, this.receivedUpgradeMsg);
-}
+};
 
 /**
  * Return array of spawnpoints
  */
 MapClass.prototype.getSpawnPoints = function() {
 	return this._spawnPoints;
-}
+};
 
 /**
  * Draw the whole map with its cells.
@@ -140,7 +140,7 @@ MapClass.prototype.draw = function() {
 		var xCoord = x * this._view.cellW;
 		this._view.line(xCoord, 0, xCoord, h * this._view.cellH, MapGridColor);
 	}
-}
+};
 
 /**
  * P2P message handler function for receiving a message <msg> from connection <conn>
@@ -150,4 +150,4 @@ MapClass.prototype.draw = function() {
 MapClass.prototype.receivedUpgradeMsg = function(conn, msg) {
 	// set to cell type 'U' (upgrade item) at the submitted position.
 	mapCellSet(msg.pos[0], msg.pos[1], 'U');
-}
+};

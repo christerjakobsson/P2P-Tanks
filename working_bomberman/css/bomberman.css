@@ -12,14 +12,6 @@ h1 {
 	text-decoration: underline;
 }
 
-.ok {
-	color: green;
-}
-
-.not_ok {
-	color: red;
-}
-
 .status_unknown {
 	color: yellow;
 }
@@ -37,10 +29,6 @@ h1 {
 #start_game_form div.option {
 	float: left;
 	text-align: center;
-}
-
-#new_game, #join_game {
-	width: 35%;
 }
 
 #or {

@@ -50,7 +50,7 @@ GameClass.prototype.setup = function(playerManagerRef, p2pCommRef) {
 
     // set up the player manager
     this._playerManager.setup(this._map, this._p2pComm);
-}
+};
 
 /**
  * Start a new game.
@@ -108,21 +108,21 @@ GameClass.prototype.startGame = function() {
 
     // start draw update
 	this.frame();
-}
+};
 
 /**
  * Stop the game.
  */
 GameClass.prototype.stopGame = function() {
 	// not implemented yet.
-}
+};
 
 /**
  * Game round ended.
  */
 GameClass.prototype.roundEnded = function() {
 	// not implemented yet.
-}
+};
 
 /**
  * Draw view update.
@@ -134,6 +134,6 @@ GameClass.prototype.frame = function() {
     requestAnimFrame(function() {
         this.frame();
     }.bind(this));
-}
+};
 
 

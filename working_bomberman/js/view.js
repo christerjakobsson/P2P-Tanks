@@ -37,7 +37,7 @@ ViewClass.prototype.setup = function(rows, cols) {
     this.cellH_2    = this.cellH / 2;
 
     console.log('Drawing ' + this.cols + ' x ' + this.rows + ' grid with cells size ' + this.cellW + ' x ' + this.cellH);
-}
+};
 
 /**
  * Adds a new entity <e> to the view. It will be pushed to the end
@@ -49,7 +49,7 @@ ViewClass.prototype.addEntity = function(e) {
     }
 
     this._entities.push(e);
-}
+};
 
 /**
  * Adds a new entity <e> to the view before the entity <o>. It will displayed beneath
@@ -67,7 +67,7 @@ ViewClass.prototype.addEntityBeforeEntity = function(e, o) {
 
     // if we didn't find 'o', add it to the end:
     this.addEntity(e);
-}
+};
 
 /**
  * Removes the entity <e> from the view.
@@ -80,7 +80,7 @@ ViewClass.prototype.removeEntity = function(e) {
             return;
         }
     }
-}
+};
 
 /**
  * Updates the view by clearing the canvas and calling the
@@ -93,14 +93,14 @@ ViewClass.prototype.update = function() {
     for (var i = 0; i < this._entities.length; i++) {
         this._entities[i].draw();
     }
-}
+};
 
 /**
  * Function to draw a cell at cell position <x>, <y> with a <style>
  */
 ViewClass.prototype.drawCell = function(x, y, style) {
     this.rect(x * this.cellW, y * this.cellH, this.cellW, this.cellH, style);
-}
+};
 
 // ViewClass.prototype.drawCell = function(x, y, margin, style) {
 //     var w = this.cellW - margin * 2;
@@ -127,7 +127,7 @@ ViewClass.prototype.drawUpgradeItem = function(x, y, margin, style) {
     ctx.moveTo(l, vM);
     ctx.lineTo(r, vM);
     ctx.stroke();
-}
+};
 
 /**
  * Function to draw a cell rhombus at cell position <x>, <y>
@@ -159,7 +159,7 @@ ViewClass.prototype.drawCellRhombus = function(x, y, margin, style) {
     // ctx.strokeStyle = 'green';
     // ctx.lineWidth = 1.0;
     // ctx.stroke();
-}
+};
 
 /**
  * Function to draw a cell circle in to the cell at position <x>, <y>
@@ -167,7 +167,7 @@ ViewClass.prototype.drawCellRhombus = function(x, y, margin, style) {
  */
 ViewClass.prototype.drawCellCircle = function(x, y, margin, style) {
     this.circle(x * this.cellW + this.cellW_2, y * this.cellH + this.cellH_2, this.cellW - margin, style);
-}
+};
 
 /**
  * Helper function to draw a rectangle.
@@ -177,7 +177,7 @@ ViewClass.prototype.rect = function(x, y, w, h, style) {
 
     ctx.fillStyle = style;
     ctx.fillRect(x, y, w, h);
-}
+};
 
 /**
  * Helper function to draw a circle.
@@ -189,7 +189,7 @@ ViewClass.prototype.circle = function(x, y, d, style) {
     ctx.arc(x, y, d / 2, 0, 2 * Math.PI, false);
     ctx.fillStyle = style;
     ctx.fill();
-}
+};
 
 /**
  * Helper function to draw a line.
@@ -203,4 +203,4 @@ ViewClass.prototype.line = function(x1, y1, x2, y2, style) {
     ctx.strokeStyle = style;
     ctx.lineWidth = 1.0;
     ctx.stroke();
-}
+};

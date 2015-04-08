@@ -11,7 +11,7 @@ var Conf = {
 	bombTimerMs: 2000,				// bomb ticking time
 	moveKeyRepeatTimeMs: 100,		// max. move key repeat time
 	bombKeyRepeatTimeMs: 500,		// max. bomb key repeat time
-	peerJsHost: 'localhost',		// peer.js server host
+	peerJsKey: 'br03fw97a5uerk9',		// peer.js server host
 	peerJsPort: 9000,				// peer.js server host port
 	peerJsDebug: true,				// peer.js debug mode
 	arrowKeyMapping: new Array(		// key mapping for arrow keys configuration
@@ -24,5 +24,4 @@ var Conf = {
 			'w', 's',
 			'x'
 		)
-
 };

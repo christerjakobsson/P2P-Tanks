@@ -42,7 +42,7 @@ BombClass.prototype.setup = function(viewRef, playerManagerRef, p2pCommRef) {
 
     this._playerManager = playerManagerRef;
     this._p2pComm = p2pCommRef;
-}
+};
 
 /**
  * Draw a bomb or a explosion animation
@@ -53,7 +53,7 @@ BombClass.prototype.draw = function() {
     } else {	// draw the bomb
     	this._drawTickingBombAnim();
     }
-}
+};
 
 /**
  * Drop a bomb. <player> is the owner of the bomb.
@@ -82,7 +82,7 @@ BombClass.prototype.dropByPlayer = function(player) {
 
     // set the timer for the explosion
 	window.setTimeout(function() { this.explode(); }.bind(this), this._timerMs);
-}
+};
 
 /**
  * Let the bomb explode.
@@ -97,7 +97,7 @@ BombClass.prototype.explode = function() {
 	this._explWave 		= 1;
 	this._explStartMs	= currentMs();
 	this._explBlocked	= new Array();   // array of blocked field directions
-}
+};
 
 /**
  * After the explosion animation this function will be called.
@@ -114,7 +114,7 @@ BombClass.prototype.stopExplosion = function() {
 
     // remove me
     this._view.removeEntity(this);
-}
+};
 
 /**
  * Private method to check if an explosion direction in the direction
@@ -132,7 +132,7 @@ BombClass.prototype._explDirectionIsBlocked = function(dx, dy) {
 	}
 
 	return false;
-}
+};
 
 /**
  *  Check if a player was hit on explosion field at position <ex>, <ey>
@@ -148,7 +148,7 @@ BombClass.prototype._checkPlayerHits = function(ex, ey) {
             this._playerManager.checkGameStatus();
         }
     }
-}
+};
 
 /**
  * Draw the explosion animation. Explosions spread by waves.
@@ -229,7 +229,7 @@ BombClass.prototype._drawExplAnim = function() {
             this._view.drawCell(posX, posY, style);
         }
     }
-}
+};
 
 /**
  * Draw the ticking bomb animation with a pulsating, growing bomb.
@@ -242,4 +242,4 @@ BombClass.prototype._drawTickingBombAnim = function() {
     var margin = min + a/2.0 * Math.sin(Math.PI * (this._tickingBombFrame / 60.0));
 
     this._view.drawCellCircle(this.x, this.y, margin, this._color);
-}
+};
