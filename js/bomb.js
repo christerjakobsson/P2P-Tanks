@@ -250,3 +250,4 @@ BombClass.prototype.drawExplAnim = function() {
         this._view.drawCellCircle(this.x, this.y, margin, this._color);
     }
 }
+
