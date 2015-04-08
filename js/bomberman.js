@@ -1,51 +1,47 @@
 /**
- * Created by chja on 2015-04-08.
- */
-/**
- * P2P-Bomberman main file
- * Handles game start and stuff
- *
- * Author: markus Konrad
+ * P2P-Bomberman main file.
+ * Handles game start and stuff.
+
+ * Author: Markus Konrad <post@mkonrad.net>
  */
 
-//Main variables
+
+// Main variables
 var lounge;             // LoungeClass instance
 var game;               // GameClass instance
-var gameMode;           // game mode is GameModeSinglePlayer or GameModeMultiplayer
+var gameMode;           // game mode is GameModeSinglePlayer or GameModeMultiPlayer
 var joinId;             // the peer id that we join to or "0"
-var frameRate = 60.0    // the animation frame rate;
+var framerate = 60.0;   // the animation frame rate
 
 /**
- * Bomberman initialisation. Call this on <body onload=...>
- * Can load different modules with <module>: 'lounge' or 'game'
- *
- * @param module
+ * Bomberman initialization. Call this in <body onload=...>.
+ * Can load different modules with <module>: 'lounge' or 'game'.
  */
 function init(module) {
     // load special modules
-    if(module === 'lounge') {
+    if (module === 'lounge') {
         loadLounge();
-    } else if(module === 'game') {
+    } else if (module === 'game') {
         loadGame();
     }
 }
 
 /**
- * Load the lounge
+ *  Load the lounge.
  */
 function loadLounge() {
     console.log('Loading lounge...');
 
     // set the main variables gameMode & joinId
 
-    gameMode = parseInt(getURLParamByName('mode');
+    gameMode = parseInt(getURLParamByName('mode'));
 
-var joinIdStr = getURLParamByName('mode'));
-    if(joinIdStr === undefined || joinIdStr === '') {
+    var joinIdStr = getURLParamByName('join_id');
+    if (joinIdStr === undefined || joinIdStr === '') {
         joinId = 0;
     } else {
         joinId = joinIdStr;
-        gameMode = GameModeMultiplayer; // Must be MP!
+        gameMode = GameModeMultiPlayer; // must be MP!
     }
 
     // start the game lounge
@@ -53,12 +49,12 @@ var joinIdStr = getURLParamByName('mode'));
     lounge.setup(joinId);
 }
 
-
 /**
- * Load the game itself
+ *  Load the game itself.
  */
 function loadGame() {
-    console.log('Loading the game...');
+    console.log('Loading game...');
 
     postGameStartCallback.fn.call(postGameStartCallback.obj);
 }
+
