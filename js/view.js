@@ -5,8 +5,13 @@
  *
  * Author: Markus Konrad <post@mkonrad.net>
  */
+var AnimationFrames = null;
+var frameIndex = 0;
 
 function ViewClass() {
+    animationFrames = [1,2,3,4,5,6,7,8];
+    frameIndex = 0;
+
     this._canvas = document.getElementById('canvas');
     this._ctx = this._canvas.getContext('2d');
 
@@ -133,7 +138,7 @@ ViewClass.prototype.drawUpgradeItem = function(x, y, margin, style) {
  * Function to draw a cell rhombus at cell position <x>, <y>
  * with a <style> and a <margin>.
  */
-ViewClass.prototype.drawCellRhombus = function(x, y, margin, style) {
+ViewClass.prototype.drawCellRhombus = function(x, y, margin, style, orientation) {
     var ctx = this._ctx;
 
     // calculate coordinates
@@ -184,6 +189,7 @@ ViewClass.prototype.rect = function(x, y, w, h, style) {
  */
 ViewClass.prototype.circle = function(x, y, d, style) {
     var ctx = this._ctx;
+    d = Math.abs(d);
 
     ctx.beginPath();
     ctx.arc(x, y, d / 2, 0, 2 * Math.PI, false);
@@ -204,3 +210,26 @@ ViewClass.prototype.line = function(x1, y1, x2, y2, style) {
     ctx.lineWidth = 1.0;
     ctx.stroke();
 };
+
+ViewClass.prototype.drawPlayer = function (tileSheet, x, y, orientation) {
+    var ctx = this._ctx;
+
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.translate(x+16, y+16);
+    var angleInRadians = (orientation-90) * Math.PI / 180;
+    ctx.rotate(angleInRadians);
+    var sourceX = Math.floor(animationFrames[frameIndex] % 8) *32;
+    var sourceY = Math.floor(animationFrames[frameIndex] / 8) *32;
+
+    ctx.drawImage(tileSheet, sourceX, sourceY,32,32,-16, -16,32,32);
+
+    ctx.restore();
+
+    frameIndex++;
+    if (frameIndex ==animationFrames.length) {
+        frameIndex=0;
+    }
+}
+
+

@@ -9,8 +9,8 @@
  * Define colors for different types of maps.
  */
 var MapColors = new Object();
-MapColors['X'] = 'darkgrey';	// indistructable cell
-MapColors['x'] = 'white';		// distructable cell
+MapColors[' '] = 'darkgrey';	// indistructable cell
+MapColors[' '] = 'white';		// distructable cell
 MapColors[' '] = 'black';		// free cell
 // MapColors['U'] = 'red';		
 								// additional types: 'B' for bomb
@@ -22,25 +22,42 @@ var MapGridColor = 'grey';			// grid line color
  * Define map dimensions.
  */
 var MapDimensions = {
-	w: 10,
-	h: 10
+	w: 640,
+	h: 640
 };
 
 /**
  * Define map data with cell types.
  */
+
+var MapData = new Array( );
+var w = MapDimensions.w;
+
+for(var y = 0; y < MapDimensions.w; y++) {
+	for(var x = 0; x < MapDimensions.h; x++) {
+		if(Math.random(1, 101) < 3) {
+			MapData[y * w + x] = 'P';
+		} else {
+			MapData[y * w + x] = ' ';
+		}
+	}
+}
+
+
+/*
 var MapData = new Array(
-	'X', 'X', 'X', 'X', ' ', 'x', 'x', 'X', 'P', 'x',
-	'P', ' ', 'x', ' ', 'X', 'x', 'x', ' ', ' ', 'x',
-	'x', ' ', 'X', 'x', 'X', 'X', 'x', 'x', 'x', 'X',
-	'X', 'x', 'x', 'x', 'x', 'x', 'x', 'X', 'x', 'X',
-	'X', 'X', 'X', 'x', 'X', 'x', 'X', 'x', ' ', 'X',
-	'x', 'x', 'X', 'x', 'x', 'X', 'x', 'x', 'x', 'X',
-	'x', ' ', 'x', 'x', ' ', 'x', 'x', 'x', 'x', 'x',
-	'X', 'x', 'x', 'X', 'x', 'X', 'x', 'X', 'x', 'X',
-	'X', 'x', 'x', 'x', 'X', 'x', 'x', 'x', ' ', 'P',
-	'P', ' ', ' ', 'X', 'x', 'x', 'x', 'x', ' ', 'X'
+	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P', ' ',
+	'P', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P',
+	'P', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
 );
+*/
 
 /**
  * Helper function to return the cell type at map position <x>, <y>.
@@ -121,7 +138,7 @@ MapClass.prototype.draw = function() {
 			// get cell type at cell x, y
 			var cellType = MapData[y * w + x];
 
-			if (cellType === 'X' || cellType === 'x') {	// draw "blocking" cell types
+			if (cellType === ' ' || cellType === ' ') {	// draw "blocking" cell types
 				this._view.drawCell(x, y, MapColors[cellType]);
 			} else if (cellType === 'U') {				// draw upgrade item
 				this._view.drawUpgradeItem(x, y, 10, 'yellow');

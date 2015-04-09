@@ -30,6 +30,8 @@ var PlayerColors = new Array(
     'lime'
 );
 
+
+
 /**
  * Inherit from EntityClass.
  */
@@ -41,7 +43,13 @@ PlayerClass.prototype.parent = EntityClass.prototype;
  * Contructor with <type> being one of the PlayerType* values.
  */
 function PlayerClass(type) {
-    this._margin = 5;               // px margin to the cell frame
+    this._orientation = 0;
+     console.log("PLAYERORIENTATION " + this._orientation);
+
+    this._tileSheet = new Image();
+    this._tileSheet.src = "images/own_tank.png";
+
+    this._margin = 10;               // px margin to the cell frame
     this._color = PlayerColors[0];  // set default color
 
     this._id = 0;               // peer id
@@ -57,14 +65,14 @@ function PlayerClass(type) {
 }
 
 /**
- * Setup a bomb and set the view and player manager references.
+ * Setup a bomb and  the view and player manager references.
  */
 PlayerClass.prototype.setup = function(viewRef, playerManagerRef, p2pRef) {
     this.parent.setup.call(this, viewRef);   // parent call
 
     this._playerManager = playerManagerRef;
 
-    // set p2p class and our message handlers
+    //  p2p class and our message handlers
     if (p2pRef) {
         this._p2pComm = p2pRef;
         this._p2pComm.setMsgHandler(MsgTypePlayerPos,  this, this.receivePos, true);
@@ -80,7 +88,7 @@ PlayerClass.prototype.getType = function() {
 };
 
 /**
- * Set the player type to <t> being one of the PlayerType* values.
+ *  the player type to <t> being one of the PlayerType* values.
  */
 PlayerClass.prototype.setType = function(t) {
     this._type = t;
@@ -89,10 +97,10 @@ PlayerClass.prototype.setType = function(t) {
 };
 
 /**
- * Set the player alive status to <v> true/false.
+ *  the player alive status to <v> true/false.
  */
 PlayerClass.prototype.setAlive = function(v) {
-    // set the status
+    //  the status
     this._alive = v;
 
     return this;
@@ -113,7 +121,7 @@ PlayerClass.prototype.getName = function() {
 };
 
 /**
- * Set the player name to string <s>.
+ *  the player name to string <s>.
  */
 PlayerClass.prototype.setName = function(s) {
     this._name = s;
@@ -129,7 +137,7 @@ PlayerClass.prototype.getId = function() {
 };
 
 /**
- * Set the peer id to <id>.
+ *  the peer id to <id>.
  */
 PlayerClass.prototype.setId = function(id) {
     this._id = id;
@@ -145,7 +153,7 @@ PlayerClass.prototype.getStatus = function() {
 };
 
 /**
- * Set the player status to <status>
+ *  the player status to <status>
  */
 PlayerClass.prototype.setStatus = function(status) {
     this._status = status;
@@ -154,7 +162,7 @@ PlayerClass.prototype.setStatus = function(status) {
 };
 
 /**
- * Set the player color.
+ *  the player color.
  */
 PlayerClass.prototype.getColor = function() {
     return this._color;
@@ -170,7 +178,7 @@ PlayerClass.prototype.setColor = function(c) {
 };
 
 /**
- * Will set the spawn point and the current entity coordinates
+ * Will  the spawn point and the current entity coordinates
  * to <p[0]>, <p[1]>
  */
 PlayerClass.prototype.setSpawnPoint = function(p) {
@@ -209,9 +217,31 @@ PlayerClass.prototype.increaseBombStrength = function() {
  * Draw the player when he is alive.
  */
 PlayerClass.prototype.draw = function() {
+
     if (this._alive) {
-        this._view.drawCellRhombus(this.x, this.y, this._margin, this._color);
+
+       this._view.drawPlayer(this._tileSheet, this.x, this.y, this._orientation);
+
+        // OLD version
+        //this._view.drawCellRhombus(this.x, this.y, this._margin, this._color);
     }
+};
+
+PlayerClass.prototype.setOrientation = function(delta) {
+    if(delta < 0) {
+        this._orientation = delta+360;
+    } else if(delta >= 360) {
+        this._orientation = delta - 360;
+    } else {
+
+        this._orientation = delta;
+    }
+    console.log("WHEJ " + this._orientation);
+};
+
+PlayerClass.prototype.getOrientation = function() {
+    console.log("JFJFJFJFJFJF");
+    return this._orientation;
 };
 
 /**
@@ -220,9 +250,12 @@ PlayerClass.prototype.draw = function() {
 PlayerClass.prototype.moveBy = function(dX, dY) {
     if (!this._alive) return;
 
-    // set the destination position
+    //  the destination position
     var destX = this.x + dX;
     var destY = this.y + dY;
+
+    console.log("moveBy x: " + destX);
+    console.log("moveBy y: " + destY);
 
     // check if we are still in the map.
     if (destX < 0 || destX >= MapDimensions.w) destX = this.x;
