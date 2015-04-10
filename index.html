@@ -2,12 +2,43 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Evaluation of P2P networks with WebRTC and Websocket</title>
+    <title>Tank game with WebRTC or Websockets</title>
+    <style>
+        a:link {
+            font-weight: bold;
+            font-size: 150%;
+            color: #ff0000;
+        }
+        a:visited { color: #B22222; }
+        a:hover { font-size:200%; }
+
+        div {
+            position:absolute;
+            top: 50%;
+            left: 50%;
+            width:30em;
+            height:18em;
+            margin-top: -9em; /*set to a negative number 1/2 of your height*/
+            margin-left: -15em; /*set to a negative number 1/2 of your width*/
+        }
+
+        .button {
+            font: bold 11px Arial;
+            text-decoration: none;
+            background-color: black;
+            color: #333333;
+            padding: 2px 6px 2px 6px;
+            border-top: 1px solid #CCCCCC;
+            border-right: 1px solid #333333;
+            border-bottom: 1px solid #333333;
+            border-left: 1px solid #CCCCCC;
+        }
+    </style>
 </head>
 <body>
-<div align="center">
-    <a href="webrtc/webretc_tanks_index.html">WebRTC version</a> <br>
-    <a href="websockets/websocket_tanks_index.html">Websocket version</a>
+<div align="center" margin="50">
+    <a href="webrtc/webretc_tanks_index.html" class="button">WebRTC version</a> <br> <br>
+    <a href="websockets/websocket_tanks_index.html" class="button">Websocket version</a>
 </div>
 </body>
 </html>
