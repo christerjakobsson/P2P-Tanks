@@ -40,7 +40,10 @@ GameClass.prototype.setup = function(playerManagerRef, p2pCommRef) {
     	this._playerManager = playerManagerRef;
     }
 
-    // set up the view and the map
+	console.log("GameMode " + this._mode);
+
+
+	// set up the view and the map
     this._view.setup(MapDimensions.w, MapDimensions.h);
     this._map.setup(this._view);
 
@@ -75,7 +78,7 @@ GameClass.prototype.startGame = function() {
 		this._controls.push(player1Controls);
 
 		// init local player 2
-		var player2 = new PlayerClass(PlayerTypeLocalKeyboardWSAD);
+		var player2 = new PlayerClass(PlayerTypeLocalAI);
 		player2.setup(this._view, this._playerManager, null);
 		player2.setId(1);
 		player2.setColor(PlayerColors[1]);

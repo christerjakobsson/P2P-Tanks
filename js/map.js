@@ -70,8 +70,9 @@ function mapCellType(x, y) {
  * Helper function to tell if map position <x>, <y> is traversable.
  */
 function mapCellIsFree(x, y) {
+
 	var t = mapCellType(x, y);
-	return (t === ' ' || t === 'P' || t === 'U');
+	return (t === ' ' || t === 'P' || t === 'U' || t === ' ');
 }
 
 /**

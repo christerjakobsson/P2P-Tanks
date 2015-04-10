@@ -250,7 +250,7 @@ P2PCommClass.prototype.sendPlayerMetaData = function(receiverId, pl_id, pl_name,
  * Send a message <msg> to all known peers (except self of course).
  */
 P2PCommClass.prototype.sendAll = function(msg) {
-    console.log('sending message of type ' + msg.type + ' to all');
+    // console.log('sending message of type ' + msg.type + ' to all');
     for (var peerId in this._conn) {
         var c = this._conn[peerId].peerjs;
         c.send(msg);
@@ -261,7 +261,7 @@ P2PCommClass.prototype.sendAll = function(msg) {
  * Send a message <msg> to a peer with id <receiverId>.
  */
 P2PCommClass.prototype.sendTo = function(receiverId, msg) {
-    console.log('sending message of type ' + msg.type + ' to peer ' + receiverId);
+    // console.log('sending message of type ' + msg.type + ' to peer ' + receiverId);
     this._conn[receiverId].peerjs.send(msg);
 };
 
@@ -276,7 +276,7 @@ P2PCommClass.prototype.sendKnownPeers = function(pid) {
         knownPeers.push(peerId);
     }
 
-    console.log('sending known peers to peer ' + pid);
+   // console.log('sending known peers to peer ' + pid);
 
     // send the message of type MsgTypeKnownPeers.
     this.sendTo(pid, {type: MsgTypeKnownPeers, peers: knownPeers});
@@ -356,7 +356,7 @@ P2PCommClass.prototype._setupConnectionHandlers = function(conn) {
 P2PCommClass.prototype._incomingData = function(conn, msg) {
     if (!msg || !msg.hasOwnProperty('type')) return;    // it must be a valid message with a type
 
-    console.log('received data from ' + conn.peer + ' with type ' + msg.type);
+   // console.log('received data from ' + conn.peer + ' with type ' + msg.type);
 
     // get the handler(s) for this type
     var hndl = this._msgHandler[msg.type];

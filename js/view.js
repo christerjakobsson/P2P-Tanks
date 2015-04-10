@@ -5,12 +5,9 @@
  *
  * Author: Markus Konrad <post@mkonrad.net>
  */
-var AnimationFrames = null;
-var frameIndex = 0;
+
 
 function ViewClass() {
-    animationFrames = [1,2,3,4,5,6,7,8];
-    frameIndex = 0;
 
     this._canvas = document.getElementById('canvas');
     this._ctx = this._canvas.getContext('2d');
@@ -211,24 +208,30 @@ ViewClass.prototype.line = function(x1, y1, x2, y2, style) {
     ctx.stroke();
 };
 
-ViewClass.prototype.drawPlayer = function (tileSheet, x, y, orientation) {
+ViewClass.prototype.drawPlayer = function (player) {
     var ctx = this._ctx;
 
-    ctx.save();
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.translate(x+16, y+16);
-    var angleInRadians = (orientation-90) * Math.PI / 180;
-    ctx.rotate(angleInRadians);
-    var sourceX = Math.floor(animationFrames[frameIndex] % 8) *32;
-    var sourceY = Math.floor(animationFrames[frameIndex] / 8) *32;
+    var frameIndex = player.getFrameIndex();
+    var animationFrames = player.getAnimationFrames();
 
-    ctx.drawImage(tileSheet, sourceX, sourceY,32,32,-16, -16,32,32);
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.translate(player.x + 16, player.y + 16);
+    var angleInRadians = (player.getOrientation() - 90) * Math.PI / 180;
+    ctx.rotate(angleInRadians);
+    var sourceX = Math.floor(animationFrames[frameIndex] % 8) * 32;
+    var sourceY = Math.floor(animationFrames[frameIndex] / 8) * 32;
+
+    ctx.drawImage(player._tileSheet, sourceX, sourceY, 32, 32, -16, -16, 32, 32);
 
     ctx.restore();
+    if (player.isMoving) {
+        frameIndex++;
+        player.setFrameIndex(frameIndex);
+        if (frameIndex == animationFrames.length-1) {
+            player.setFrameIndex(0);
+        }
 
-    frameIndex++;
-    if (frameIndex ==animationFrames.length) {
-        frameIndex=0;
     }
 }
 

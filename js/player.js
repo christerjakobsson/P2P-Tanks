@@ -43,11 +43,8 @@ PlayerClass.prototype.parent = EntityClass.prototype;
  * Contructor with <type> being one of the PlayerType* values.
  */
 function PlayerClass(type) {
-    this._orientation = 0;
-     console.log("PLAYERORIENTATION " + this._orientation);
 
-    this._tileSheet = new Image();
-    this._tileSheet.src = "images/own_tank.png";
+
 
     this._margin = 10;               // px margin to the cell frame
     this._color = PlayerColors[0];  // set default color
@@ -62,6 +59,19 @@ function PlayerClass(type) {
     this._p2pComm = null;       // P2P Communication Class (only MP)
 
     this._bombStrength = 1;     // bomb strength given to the bombs of this player
+
+    this.AnimationFrames = [1,2,3,4,5,6,7,8];
+    this.frameIndex = 0;
+    this.isMoving = false;
+    this.orientation = 0;
+
+    this._tileSheet = new Image();
+
+    if (this._type == PlayerTypeLocalKeyboardArrows || this._type  == PlayerTypeLocalKeyboardWSAD) {
+        this._tileSheet.src = "images/own_tank.png";
+    } else if (this._type == PlayerTypeRemote || this._type == PlayerTypeLocalAI){
+        this._tileSheet.src = "images/opponent_tank.png";
+    }
 }
 
 /**
@@ -220,7 +230,7 @@ PlayerClass.prototype.draw = function() {
 
     if (this._alive) {
 
-       this._view.drawPlayer(this._tileSheet, this.x, this.y, this._orientation);
+       this._view.drawPlayer(this);
 
         // OLD version
         //this._view.drawCellRhombus(this.x, this.y, this._margin, this._color);
@@ -229,33 +239,29 @@ PlayerClass.prototype.draw = function() {
 
 PlayerClass.prototype.setOrientation = function(delta) {
     if(delta < 0) {
-        this._orientation = delta+360;
+        this.orientation = delta+360;
     } else if(delta >= 360) {
-        this._orientation = delta - 360;
+        this.orientation = delta - 360;
     } else {
 
-        this._orientation = delta;
+        this.orientation = delta;
     }
-    console.log("WHEJ " + this._orientation);
 };
 
 PlayerClass.prototype.getOrientation = function() {
-    console.log("JFJFJFJFJFJF");
-    return this._orientation;
+    return this.orientation;
 };
 
 /**
  * Move the player by <dX>, <dY>.
  */
-PlayerClass.prototype.moveBy = function(dX, dY) {
+PlayerClass.prototype.moveBy = function(dX, dY, orientation) {
     if (!this._alive) return;
 
     //  the destination position
     var destX = this.x + dX;
     var destY = this.y + dY;
 
-    console.log("moveBy x: " + destX);
-    console.log("moveBy y: " + destY);
 
     // check if we are still in the map.
     if (destX < 0 || destX >= MapDimensions.w) destX = this.x;
@@ -263,10 +269,10 @@ PlayerClass.prototype.moveBy = function(dX, dY) {
 
     if (mapCellIsFree(destX, destY)) {  // check if the cell is free
         if (gameMode === GameModeMultiPlayer) { // in MP mode ...
-            this.sendPos(destX, destY);         // ... send the new position to all peers
-        }
+            this.sendPos(destX, destY, orientation);         // ... send the new position to all peers
 
-        this.set(destX, destY);                     // set the position
+        }
+        this.set(destX, destY, orientation);                     // set the position
         this._checkDestinationCell(destX, destY);   // check if the new cell is some kind of special cell (e.g. upgrade)
     }
 };
@@ -299,14 +305,16 @@ PlayerClass.prototype._dropBombByPlayer = function(player) {
 /**
  * Send our position <x>, <y> to the peers (MP only).
  */
-PlayerClass.prototype.sendPos = function(x, y) {
-    if (this._type === PlayerTypeRemote) return;    // NOT for remote players
+PlayerClass.prototype.sendPos = function(x, y, orientation) {
+    if (this._type === PlayerTypeRemote) { return;  }    // NOT for remote players
+
 
     // construct the message
     var msg = {
         id:     this._id,
         type:   MsgTypePlayerPos,
-        pos:    new Array(x, y)     // position as array
+        pos:    new Array(x, y),     // position as array
+        angle:  orientation          // Orientation
     };
 
     // send it to all peers
@@ -319,10 +327,10 @@ PlayerClass.prototype.sendPos = function(x, y) {
  */
 PlayerClass.prototype.receivePos = function(conn, msg) {
     if (this._type !== PlayerTypeRemote // ONLY for remote players
-     || msg.id !== this._id) return;    // ONLY if the ids match
+     || msg.id !== this._id) return;    // ONLY if the ids dont match
 
     // set the position
-    this.set(msg.pos[0], msg.pos[1]);
+    this.set(msg.pos[0], msg.pos[1], msg.angle);
     this._checkDestinationCell(msg.pos[0], msg.pos[1]);
 };
 
@@ -364,3 +372,28 @@ PlayerClass.prototype._checkDestinationCell = function(destX, destY) {
         mapCellSet(destX, destY, ' ');          // reset to free field
     }
 };
+
+PlayerClass.prototype.setIsMoving = function (moving) {
+    this.isMoving = moving;
+}
+
+PlayerClass.prototype.isMoving = function () {
+    return this.isMoving;
+}
+
+PlayerClass.prototype.getAnimationFramesIndex = function (index) {
+    return this.AnimationFrames[index];
+}
+
+PlayerClass.prototype.getAnimationFrames = function () {
+    return this.AnimationFrames;
+}
+
+
+PlayerClass.prototype.getFrameIndex = function () {
+    return this.frameIndex;
+}
+
+PlayerClass.prototype.setFrameIndex = function (val) {
+    this.frameIndex = val;
+}
