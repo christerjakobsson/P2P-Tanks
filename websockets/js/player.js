@@ -1,0 +1,399 @@
+/**
+ * P2P-Bomberman player entity.
+ * Implementation of a player that can be controlled locally (by ControlsClass)
+ * or is controlled remotely (by a peer).
+ *
+ * Author: Markus Konrad <post@mkonrad.net>
+ */
+
+/**
+ * Define player status values.
+ */
+var PlayerStatusNotReady    = 1;
+var PlayerStatusReady       = 2;
+
+/**
+ * Define player types.
+ */
+var PlayerTypeLocalKeyboardArrows  = 0;
+var PlayerTypeLocalKeyboardWSAD    = 1;
+var PlayerTypeLocalAI              = 2;    // not supported yet
+var PlayerTypeRemote               = 3;
+
+/**
+ * Define possible player colors.
+ */
+var PlayerColors = new Array(
+    'gold',
+    'blue',
+    'deeppink',
+    'lime'
+);
+
+
+
+/**
+ * Inherit from EntityClass.
+ */
+PlayerClass.prototype = new EntityClass();
+PlayerClass.constructor = PlayerClass;
+PlayerClass.prototype.parent = EntityClass.prototype;
+
+/**
+ * Contructor with <type> being one of the PlayerType* values.
+ */
+function PlayerClass(type) {
+
+
+
+    this._margin = 10;               // px margin to the cell frame
+    this._color = PlayerColors[0];  // set default color
+
+    this._id = 0;               // peer id
+    this._name = '';            // user name
+    this._alive = true;         // status
+    this._status = PlayerStatusNotReady;    // ready/not ready
+    this._type = type;          // type
+    this._spawnPoint = null;    // spawn point with x and y coord. in array of size 2
+    this._playerManager = null; // ref. to PlayerManagerClass
+    this._p2pComm = null;       // P2P Communication Class (only MP)
+
+    this._bombStrength = 1;     // bomb strength given to the bombs of this player
+
+    this.AnimationFrames = [1,2,3,4,5,6,7,8];
+    this.frameIndex = 0;
+    this.isMoving = false;
+    this.orientation = 0;
+
+    this._tileSheet = new Image();
+
+    if (this._type == PlayerTypeLocalKeyboardArrows || this._type  == PlayerTypeLocalKeyboardWSAD) {
+        this._tileSheet.src = "images/own_tank.png";
+    } else if (this._type == PlayerTypeRemote || this._type == PlayerTypeLocalAI){
+        this._tileSheet.src = "images/opponent_tank.png";
+    }
+}
+
+/**
+ * Setup a bomb and  the view and player manager references.
+ */
+PlayerClass.prototype.setup = function(viewRef, playerManagerRef, p2pRef) {
+    this.parent.setup.call(this, viewRef);   // parent call
+
+    this._playerManager = playerManagerRef;
+
+    //  p2p class and our message handlers
+    if (p2pRef) {
+        this._p2pComm = p2pRef;
+        this._p2pComm.setMsgHandler(MsgTypePlayerPos,  this, this.receivePos, true);
+        this._p2pComm.setMsgHandler(MsgTypePlayerBomb, this, this.receiveBomb, true);
+    }
+};
+
+/**
+ * Return the player type.
+ */
+PlayerClass.prototype.getType = function() {
+    return this._type;
+};
+
+/**
+ *  the player type to <t> being one of the PlayerType* values.
+ */
+PlayerClass.prototype.setType = function(t) {
+    this._type = t;
+
+    return this;
+};
+
+/**
+ *  the player alive status to <v> true/false.
+ */
+PlayerClass.prototype.setAlive = function(v) {
+    //  the status
+    this._alive = v;
+
+    return this;
+};
+
+/**
+ * Get the player alive status.
+ */
+PlayerClass.prototype.getAlive = function() {
+    return this._alive;
+};
+
+/**
+ * Return the player name
+ */
+PlayerClass.prototype.getName = function() {
+    return this._name;
+};
+
+/**
+ *  the player name to string <s>.
+ */
+PlayerClass.prototype.setName = function(s) {
+    this._name = s;
+
+    return this;
+};
+
+/**
+ * Return the peer id.
+ */
+PlayerClass.prototype.getId = function() {
+    return this._id;
+};
+
+/**
+ *  the peer id to <id>.
+ */
+PlayerClass.prototype.setId = function(id) {
+    this._id = id;
+
+    return this;
+};
+
+/**
+ * Return the player status.
+ */
+PlayerClass.prototype.getStatus = function() {
+    return this._status;
+};
+
+/**
+ *  the player status to <status>
+ */
+PlayerClass.prototype.setStatus = function(status) {
+    this._status = status;
+
+    return this;
+};
+
+/**
+ *  the player color.
+ */
+PlayerClass.prototype.getColor = function() {
+    return this._color;
+};
+
+/**
+ * Get the player color.
+ */
+PlayerClass.prototype.setColor = function(c) {
+    this._color = c;
+
+    return this;
+};
+
+/**
+ * Will  the spawn point and the current entity coordinates
+ * to <p[0]>, <p[1]>
+ */
+PlayerClass.prototype.setSpawnPoint = function(p) {
+    this._spawnPoint = new Array(p[0], p[1]);   // copy
+    this.set(p[0], p[1]);
+
+    return this;
+};
+
+/**
+ * Return the spawn point
+ */
+PlayerClass.prototype.getSpawnPoint = function() {
+    return this._spawnPoint;
+};
+
+/**
+ * Return the bomb strength of this player.
+ */
+PlayerClass.prototype.getBombStrength = function() {
+    return this._bombStrength;
+};
+
+/**
+ * Increase the bomb strength of this player by 1 until Conf.maxBombStrength.
+ */
+PlayerClass.prototype.increaseBombStrength = function() {
+    if (this._bombStrength < Conf.maxBombStrength) {
+        this._bombStrength++;
+
+        console.log('bomb strength of player ' + this._id + ' is now ' + this._bombStrength);
+    }
+};
+
+/**
+ * Draw the player when he is alive.
+ */
+PlayerClass.prototype.draw = function() {
+
+    if (this._alive) {
+
+       this._view.drawPlayer(this);
+
+        // OLD version
+        //this._view.drawCellRhombus(this.x, this.y, this._margin, this._color);
+    }
+};
+
+PlayerClass.prototype.setOrientation = function(delta) {
+    if(delta < 0) {
+        this.orientation = delta+360;
+    } else if(delta >= 360) {
+        this.orientation = delta - 360;
+    } else {
+
+        this.orientation = delta;
+    }
+};
+
+PlayerClass.prototype.getOrientation = function() {
+    return this.orientation;
+};
+
+/**
+ * Move the player by <dX>, <dY>.
+ */
+PlayerClass.prototype.moveBy = function(dX, dY, orientation) {
+    if (!this._alive) return;
+
+    //  the destination position
+    var destX = this.x + dX;
+    var destY = this.y + dY;
+
+
+    // check if we are still in the map.
+    if (destX < 0 || destX >= MapDimensions.w) destX = this.x;
+    if (destY < 0 || destY >= MapDimensions.h) destY = this.y;
+
+    if (mapCellIsFree(destX, destY)) {  // check if the cell is free
+        if (gameMode === GameModeMultiPlayer) { // in MP mode ...
+            this.sendPos(destX, destY, orientation);         // ... send the new position to all peers
+
+        }
+        this.set(destX, destY, orientation);                     // set the position
+        this._checkDestinationCell(destX, destY);   // check if the new cell is some kind of special cell (e.g. upgrade)
+    }
+};
+
+/**
+ * Drop a bomb.
+ */
+PlayerClass.prototype.dropBomb = function() {
+    if (!this._alive || mapCellType(this.x, this.y) === 'B') return;
+
+    if (gameMode === GameModeMultiPlayer) { // send it to our peers
+        this.sendBombDrop(this.x, this.y);
+    }
+
+    // drop the bomb
+    this._dropBombByPlayer(this);
+};
+
+/**
+ * Create a new BombClass object and let it drop by <player>.
+ * <player> can be "this" player or a remote player if we received
+ * such a message.
+ */
+PlayerClass.prototype._dropBombByPlayer = function(player) {
+    var bomb = new BombClass();
+    bomb.setup(this._view, this._playerManager, this._p2pComm);
+    bomb.dropByPlayer(player);
+};
+
+/**
+ * Send our position <x>, <y> to the peers (MP only).
+ */
+PlayerClass.prototype.sendPos = function(x, y, orientation) {
+    if (this._type === PlayerTypeRemote) { return;  }    // NOT for remote players
+
+
+    // construct the message
+    var msg = {
+        id:     this._id,
+        type:   MsgTypePlayerPos,
+        pos:    new Array(x, y),     // position as array
+        angle:  orientation          // Orientation
+    };
+
+    // send it to all peers
+    this._p2pComm.sendAll(msg);
+};
+
+/**
+ * P2P message handler callback for type MsgTypePlayerPos.
+ * Receive a position message <msg> by connection <conn> and interpret it.
+ */
+PlayerClass.prototype.receivePos = function(conn, msg) {
+    if (this._type !== PlayerTypeRemote // ONLY for remote players
+     || msg.id !== this._id) return;    // ONLY if the ids dont match
+
+    // set the position
+    this.set(msg.pos[0], msg.pos[1], msg.angle);
+    this._checkDestinationCell(msg.pos[0], msg.pos[1]);
+};
+
+/**
+ * Send that we've dropped a bomb at <x>, <y>. Our peers should know!
+ */
+PlayerClass.prototype.sendBombDrop = function(x, y) {
+    if (this._type === PlayerTypeRemote) return;    // NOT for remote players
+
+    // construct the message: we only send the event and the peer id
+    var msg = {
+        id:     this._id,
+        type:   MsgTypePlayerBomb
+    };
+
+    // send it to all peers
+    this._p2pComm.sendAll(msg);
+};
+
+/**
+ * P2P message handler callback for type MsgTypePlayerBomb.
+ * Receive a "bomb has been dropped" message <msg> by connection <conn>
+ * and interpret it.
+ */
+PlayerClass.prototype.receiveBomb = function(conn, msg) {
+    if (this._type !== PlayerTypeRemote // ONLY for remote players
+     || msg.id !== this._id) return;    // ONLY if the ids match
+
+    // let the player drop the bomb
+    this._dropBombByPlayer(this);
+};
+
+/**
+ * Check if it is special cell type on position <destX>, <destY>.
+ */
+PlayerClass.prototype._checkDestinationCell = function(destX, destY) {
+    if (mapCellType(destX, destY) === 'U') {    // we got an upgrade here!s
+        this.increaseBombStrength();            // increase the bomb strength
+        mapCellSet(destX, destY, ' ');          // reset to free field
+    }
+};
+
+PlayerClass.prototype.setIsMoving = function (moving) {
+    this.isMoving = moving;
+}
+
+PlayerClass.prototype.isMoving = function () {
+    return this.isMoving;
+}
+
+PlayerClass.prototype.getAnimationFramesIndex = function (index) {
+    return this.AnimationFrames[index];
+}
+
+PlayerClass.prototype.getAnimationFrames = function () {
+    return this.AnimationFrames;
+}
+
+
+PlayerClass.prototype.getFrameIndex = function () {
+    return this.frameIndex;
+}
+
+PlayerClass.prototype.setFrameIndex = function (val) {
+    this.frameIndex = val;
+}
