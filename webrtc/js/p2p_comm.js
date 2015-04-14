@@ -56,15 +56,32 @@ P2PCommClass.prototype.getPeerId = function() {
  *  we received an Id from the peer.js server and a function <errorFn>.
  */
 P2PCommClass.prototype.createPeer = function(successFn, errorFn) {
-   this._peer = new Peer({
-       config: {
-           iceTransports: 'all',
-           'iceServers': [
+    // This object will take in an array of XirSys STUN / TURN servers
+// and override the original config object
+    var customConfig;
 
-                    { urls:'stun:shinowa.tk:10000' },
-                    { urls: 'turn:shinowa.tk:10000', credential: '1234', username: 'test' }
-           ]
-       },
+// Call XirSys ICE servers
+    $.ajax({
+        type: "POST",
+        url: "https://api.xirsys.com/getIceServers",
+        data: {
+            ident: "&lt; shinowa &gt;",
+            secret: "&lt; a1685d29-6144-46d3-9637-35fc918479a1 &gt;",
+            domain: "&lt; shinowa.tk &gt;",
+            application: "default",
+            room: "default",
+            secure: 1
+        },
+        success: function (data, status) {
+            // data.d is where the iceServers object lives
+            customConfig = data.d;
+            console.log(customConfig);
+        },
+        async: false
+    });
+
+   this._peer = new Peer({
+       config: customConfig,
        key: Conf.peerJsKey,
        debug: Conf.peerJsDebug
    });
