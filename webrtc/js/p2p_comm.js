@@ -15,10 +15,38 @@ var MsgTypePlayerSpawnPoint = 3;
 var MsgTypePlayerBomb       = 4;
 var MsgTypePlayerUpgrade    = 5;
 
+
+
+
 /**
  * P2P communication constructor. 
  */
 function P2PCommClass() {
+    this.customConfig   = {
+        [
+            {url:'stun:stun01.sipphone.com'},
+            {url:'stun:stun.ekiga.net'},
+            {url:'stun:stun.fwdnet.net'},
+            {url:'stun:stun.ideasip.com'},
+            {url:'stun:stun.iptel.org'},
+            {url:'stun:stun.rixtelecom.se'},
+            {url:'stun:stun.schlund.de'},
+            {url:'stun:stun.l.google.com:19302'},
+            {url:'stun:stun1.l.google.com:19302'},
+            {url:'stun:stun2.l.google.com:19302'},
+            {url:'stun:stun3.l.google.com:19302'},
+            {url:'stun:stun4.l.google.com:19302'},
+            {url:'stun:stunserver.org'},
+            {url:'stun:stun.softjoys.com'},
+            {url:'stun:stun.voiparound.com'},
+            {url:'stun:stun.voipbuster.com'},
+            {url:'stun:stun.voipstunt.com'},
+            {url:'stun:stun.voxgratia.org'},
+            {url:'stun:stun.xten.com'},
+            { url: 'turn:numb.viagenie.ca', credential: 'muazkh', username: 'webrtc@live.com' },
+            { url: 'turn:192.158.29.39:3478?transport=udp', credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=', username: '28224511:1379330808' },
+            { url: 'turn:192.158.29.39:3478?transport=tcp', credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=', username: '28224511:1379330808' }
+        ];
     this._peer          = null;     // peer.js Peer object
     this._conn          = null;     // shortcut to this._peer.connections
     this._peerId        = '';       // OWN peer id
@@ -56,32 +84,15 @@ P2PCommClass.prototype.getPeerId = function() {
  *  we received an Id from the peer.js server and a function <errorFn>.
  */
 P2PCommClass.prototype.createPeer = function(successFn, errorFn) {
+
+
+
+
     // This object will take in an array of XirSys STUN / TURN servers
 // and override the original config object
-    var customConfig;
-
-// Call XirSys ICE servers
-    $.ajax({
-        type: "POST",
-        url: "https://api.xirsys.com/getIceServers",
-        data: {
-            ident: "&lt; shinowa &gt;",
-            secret: "&lt; a1685d29-6144-46d3-9637-35fc918479a1 &gt;",
-            domain: "&lt; shinowa.tk &gt;",
-            application: "default",
-            room: "default",
-            secure: 1
-        },
-        success: function (data, status) {
-            // data.d is where the iceServers object lives
-            customConfig = data.d;
-            console.log(customConfig);
-        },
-        async: false
-    });
 
    this._peer = new Peer({
-       config: customConfig,
+        config: this.customConfig,
        key: Conf.peerJsKey,
        debug: Conf.peerJsDebug
    });
