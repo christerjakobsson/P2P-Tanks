@@ -22,7 +22,7 @@ var MsgTypePlayerUpgrade    = 5;
  * P2P communication constructor. 
  */
 function P2PCommClass() {
-    this.customConfig   = {
+    this.customConfig  =
         [
             {url:'stun:stun01.sipphone.com'},
             {url:'stun:stun.ekiga.net'},
