@@ -40,10 +40,7 @@ GameClass.prototype.setup = function(playerManagerRef, p2pCommRef) {
     	this._playerManager = playerManagerRef;
     }
 
-	console.log("GameMode " + this._mode);
-
-
-	// set up the view and the map
+    // set up the view and the map
     this._view.setup(MapDimensions.w, MapDimensions.h);
     this._map.setup(this._view);
 
@@ -53,7 +50,7 @@ GameClass.prototype.setup = function(playerManagerRef, p2pCommRef) {
 
     // set up the player manager
     this._playerManager.setup(this._map, this._p2pComm);
-};
+}
 
 /**
  * Start a new game.
@@ -78,7 +75,7 @@ GameClass.prototype.startGame = function() {
 		this._controls.push(player1Controls);
 
 		// init local player 2
-		var player2 = new PlayerClass(PlayerTypeLocalAI);
+		var player2 = new PlayerClass(PlayerTypeLocalKeyboardWSAD);
 		player2.setup(this._view, this._playerManager, null);
 		player2.setId(1);
 		player2.setColor(PlayerColors[1]);
@@ -105,27 +102,27 @@ GameClass.prototype.startGame = function() {
 			this._view.addEntity(players[i]);
 		}
 	}
-    
+
     // spawn all players
     this._playerManager.spawnAllPlayers();
 
     // start draw update
 	this.frame();
-};
+}
 
 /**
  * Stop the game.
  */
 GameClass.prototype.stopGame = function() {
 	// not implemented yet.
-};
+}
 
 /**
  * Game round ended.
  */
 GameClass.prototype.roundEnded = function() {
 	// not implemented yet.
-};
+}
 
 /**
  * Draw view update.
@@ -137,6 +134,6 @@ GameClass.prototype.frame = function() {
     requestAnimFrame(function() {
         this.frame();
     }.bind(this));
-};
+}
 
 

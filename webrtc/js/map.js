@@ -13,8 +13,8 @@ MapColors[' '] = 'darkgrey';	// indistructable cell
 MapColors[' '] = 'white';		// distructable cell
 MapColors[' '] = 'black';		// free cell
 // MapColors['U'] = 'red';		
-								// additional types: 'B' for bomb
-								// 					 'U' for upgrade	(increases bomb strength)
+// additional types: 'B' for bomb
+// 					 'U' for upgrade	(increases bomb strength)
 
 var MapGridColor = 'grey';			// grid line color
 
@@ -45,19 +45,19 @@ for(var y = 0; y < MapDimensions.w; y++) {
 
 
 /*
-var MapData = new Array(
-	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P', ' ',
-	'P', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
-	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
-	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
-	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
-	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
-	' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
-	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P',
-	'P', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
-);
-*/
+ var MapData = new Array(
+ ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P', ' ',
+ 'P', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ ' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+ ' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+ ' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+ ' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+ ' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+ ' ', ' ', ' ', ' ', 'X', ' ', ' ', ' ', ' ', ' ',
+ ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P',
+ 'P', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+ );
+ */
 
 /**
  * Helper function to return the cell type at map position <x>, <y>.
@@ -96,7 +96,7 @@ function MapClass() {
 	var h = MapDimensions.h;
 
 	this._p2pComm = null;
-	
+
 	// create array of possible spawn points.
 	this._spawnPoints = new Array();
 	for (var y = 0; y < h; y++) {
@@ -116,7 +116,7 @@ MapClass.prototype.setP2PComm = function(p2pCommRef) {
 	this._p2pComm = p2pCommRef;
 
 	// set a message handler for "upgrade" messages
-    this._p2pComm.setMsgHandler(MsgTypePlayerUpgrade,   this, this.receivedUpgradeMsg);
+	this._p2pComm.setMsgHandler(MsgTypePlayerUpgrade,   this, this.receivedUpgradeMsg);
 };
 
 /**

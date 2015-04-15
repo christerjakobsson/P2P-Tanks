@@ -17,13 +17,13 @@ var Conf = {
 	peerJsPort: 9000,				// peer.js server host port
 	peerJsDebug: true,				// peer.js debug mode
 	arrowKeyMapping: new Array(		// key mapping for arrow keys configuration
-			37, 39,
-			38, 40,
-			66
-		),
+		37, 39,
+		38, 40,
+		66
+	),
 	wsadKeyMapping: new Array(		// key mapping for WSAD keys configuration
-			'a', 'd',
-			'w', 's',
-			'x'
-		)
+		'a', 'd',
+		'w', 's',
+		'x'
+	)
 };

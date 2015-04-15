@@ -230,7 +230,7 @@ PlayerClass.prototype.draw = function() {
 
     if (this._alive) {
 
-       this._view.drawPlayer(this);
+        this._view.drawPlayer(this);
 
         // OLD version
         //this._view.drawCellRhombus(this.x, this.y, this._margin, this._color);
@@ -327,7 +327,7 @@ PlayerClass.prototype.sendPos = function(x, y, orientation) {
  */
 PlayerClass.prototype.receivePos = function(conn, msg) {
     if (this._type !== PlayerTypeRemote // ONLY for remote players
-     || msg.id !== this._id) return;    // ONLY if the ids dont match
+        || msg.id !== this._id) return;    // ONLY if the ids dont match
 
     // set the position
     this.set(msg.pos[0], msg.pos[1], msg.angle);
@@ -357,7 +357,7 @@ PlayerClass.prototype.sendBombDrop = function(x, y) {
  */
 PlayerClass.prototype.receiveBomb = function(conn, msg) {
     if (this._type !== PlayerTypeRemote // ONLY for remote players
-     || msg.id !== this._id) return;    // ONLY if the ids match
+        || msg.id !== this._id) return;    // ONLY if the ids match
 
     // let the player drop the bomb
     this._dropBombByPlayer(this);

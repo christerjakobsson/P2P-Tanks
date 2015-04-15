@@ -19,7 +19,7 @@ function ControlsClass() {
  * Set up the controls for player <playerRef> with key configuration array <keyConf>.
  */
 ControlsClass.prototype.setup = function(playerRef, keyConf) {
-    this._player = playerRef;
+	this._player = playerRef;
 
 	var map = [];
 	$(document).bind('keydown || keyup', function (e) {
@@ -52,22 +52,22 @@ ControlsClass.prototype.setup = function(playerRef, keyConf) {
 		}
 
 		/*
-		if(!map[keyConf[2]] && !map[keyConf[3]]) {
-			this._player.setIsMoving(false);
-		}
-		*/
+		 if(!map[keyConf[2]] && !map[keyConf[3]]) {
+		 this._player.setIsMoving(false);
+		 }
+		 */
 
 
 	}.bind(this));
 
 	/*
-    // do the key bindings
-    $(document).bind('keydown', keyConf[0], function() { this.moveLeft(); 	}.bind(this));
-    $(document).bind('keydown', keyConf[1],	function() { this.moveRight(); 	}.bind(this));
-    $(document).bind('keydown', keyConf[2], function() { this.moveForward(); 	}.bind(this));
-    $(document).bind('keydown', keyConf[3], function() { this.moveBackwards(); 	}.bind(this));
-    $(document).bind('keydown', keyConf[4], function() { this.shoot(); 	}.bind(this));
-    */
+	 // do the key bindings
+	 $(document).bind('keydown', keyConf[0], function() { this.moveLeft(); 	}.bind(this));
+	 $(document).bind('keydown', keyConf[1],	function() { this.moveRight(); 	}.bind(this));
+	 $(document).bind('keydown', keyConf[2], function() { this.moveForward(); 	}.bind(this));
+	 $(document).bind('keydown', keyConf[3], function() { this.moveBackwards(); 	}.bind(this));
+	 $(document).bind('keydown', keyConf[4], function() { this.shoot(); 	}.bind(this));
+	 */
 };
 
 /**
@@ -76,7 +76,7 @@ ControlsClass.prototype.setup = function(playerRef, keyConf) {
 ControlsClass.prototype.moveLeft = function() {
 	/*
 	 if (currentMs() - this._lastMoveKeyUsage < Conf.moveKeyRepeatTimeMs) return;
-	this._lastMoveKeyUsage = currentMs();
+	 this._lastMoveKeyUsage = currentMs();
 	 */
 
 	var orie = this._player.getOrientation();
@@ -90,9 +90,9 @@ ControlsClass.prototype.moveLeft = function() {
  */
 ControlsClass.prototype.moveRight = function() {
 	/*
-	if (currentMs() - this._lastMoveKeyUsage < Conf.moveKeyRepeatTimeMs) return;
-	this._lastMoveKeyUsage = currentMs();
-	*/
+	 if (currentMs() - this._lastMoveKeyUsage < Conf.moveKeyRepeatTimeMs) return;
+	 this._lastMoveKeyUsage = currentMs();
+	 */
 
 	var orie = this._player.getOrientation();
 	this._player.setOrientation(orie + Conf.turnSpeed);
@@ -135,13 +135,13 @@ ControlsClass.prototype.moveBackwards = function() {
  * Let the player drop a bomb.
  */
 /*
-ControlsClass.prototype.dropBomb = function() {
-	if (currentMs() - this._lastBombKeyUsage < Conf.bombKeyRepeatTimeMs) return;
-	this._lastBombKeyUsage = currentMs();
+ ControlsClass.prototype.dropBomb = function() {
+ if (currentMs() - this._lastBombKeyUsage < Conf.bombKeyRepeatTimeMs) return;
+ this._lastBombKeyUsage = currentMs();
 
-	this._player.dropBomb();
-};
-*/
+ this._player.dropBomb();
+ };
+ */
 
 ControlsClass.prototype.shoot = function() {
 	if (currentMs() - this._lastBombKeyUsage < Conf.bombKeyRepeatTimeMs) return;

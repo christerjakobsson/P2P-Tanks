@@ -25,40 +25,39 @@ function PlayerManagerClass() {
 PlayerManagerClass.prototype.setup = function(mapRef, p2pCommRef) {
     this._map       = mapRef;
     this._p2pComm   = p2pCommRef;
-};
+}
 
 /**
  * Return array of all players as array.
  */
 PlayerManagerClass.prototype.getPlayers = function() {
-    //noinspection UnnecessaryLocalVariableJS
     var arr = $.map(this._players,function(v){
         return v;
     });
 
     return arr;
-};
+}
 
 /**
  * Return a specific player identified by <playerId>.
  */
 PlayerManagerClass.prototype.getPlayer = function(playerId) {
     return this._players[playerId];
-};
+}
 
 /**
  * Return the local player instance.
  */
 PlayerManagerClass.prototype.getLocalPlayer = function() {
     return this._localPlayer;
-};
+}
 
 /**
  * Returns true if a player with id <playerId> exists or otherwise false.
  */
 PlayerManagerClass.prototype.playerExists = function(playerId) {
     return this._players.hasOwnProperty(playerId);
-};
+}
 
 /**
  * Set up all players with a view <viewRef> and the player manager reference.
@@ -67,7 +66,7 @@ PlayerManagerClass.prototype.setupPlayers = function(viewRef, p2pCommRef) {
     for (var id in this._players) {
         this._players[id].setup(viewRef, this, p2pCommRef);
     }
-};
+}
 
 /**
  * Add a new player to the game.
@@ -79,7 +78,7 @@ PlayerManagerClass.prototype.addPlayer = function(p) {
      || p.getType() === PlayerTypeLocalKeyboardWSAD) {  // this is a local player so set it as local player
         this._localPlayer = p;
     }
-};
+}
 
 /**
  * Remove a player with id <playerId> from the game.
@@ -88,7 +87,7 @@ PlayerManagerClass.prototype.removePlayer = function(playerId) {
     if (this._players.hasOwnProperty(playerId)) {
         delete this._players[playerId];
     }
-};
+}
 
 /**
  * Check if the game is over or not.
@@ -104,7 +103,7 @@ PlayerManagerClass.prototype.checkGameStatus = function() {
     if (numAlive === 0) {
         game.roundEnded();
     }
-};
+}
 
 /**
  * Spawn all players randomly on the map's spawn points.
@@ -125,7 +124,7 @@ PlayerManagerClass.prototype.spawnAllPlayers = function() {
     } else {
         this._spawnAllPlayersMP();
     }
-};
+}
 
 /**
  * Spawn all players in singleplayer mode.
@@ -140,7 +139,7 @@ PlayerManagerClass.prototype._spawnAllPlayersSP = function(spawnPointsCopy) {
         console.log('spawning player ' + id);
         this.spawnPlayer(this._players[id], spawnPointsCopy[i++]);
     }
-};
+}
 
 /**
  * Spawn all players in multiplayer mode. After a random time one peer will create and
@@ -158,7 +157,7 @@ PlayerManagerClass.prototype._spawnAllPlayersMP = function() {
     this._chooseSpawnPointTimeoutHndl = window.setTimeout(function() {
         this._chooseSpawnPoints();
     }.bind(this), randMs);
-};
+}
 
 /**
  * This function will be called after a random time to create
@@ -191,7 +190,7 @@ PlayerManagerClass.prototype._chooseSpawnPoints = function() {
     // send to all peers
     console.log('sending spawn point message to all');
     this._p2pComm.sendAll(msg);
-};
+}
 
 /**
  * P2P message handler callback for type MsgTypePlayerSpawnPoint.
@@ -213,7 +212,7 @@ PlayerManagerClass.prototype._spawnPointMsgReceived = function(conn, msg) {
         console.log('setting player ' + this._players[id].getName() + ' to ' + spawnPointsMap[id][0] + ',' + spawnPointsMap[id][1]);
         this.spawnPlayer(this._players[id], spawnPointsMap[id]);
     }
-};
+}
 
 /**
  * Spawn a player <p> on a spawnpoint <spawnPoint>.
@@ -221,4 +220,4 @@ PlayerManagerClass.prototype._spawnPointMsgReceived = function(conn, msg) {
 PlayerManagerClass.prototype.spawnPlayer = function(p, spawnPoint) {
     p.setAlive(true);
     p.setSpawnPoint(spawnPoint);
-};
+}
