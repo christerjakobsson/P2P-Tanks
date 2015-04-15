@@ -10,7 +10,7 @@ function EntityClass() {
 	// Entity position
     this.x = 0;
     this.y = 0;
-
+    this.angle = 0;
     // View reference
     this._view = null;
 }
@@ -26,9 +26,10 @@ EntityClass.prototype.setup = function(viewRef) {
 /**
  * Set the position to <x> and <y>.
  */
-EntityClass.prototype.set = function(x, y) {
+EntityClass.prototype.set = function(x, y, angle) {
     this.x = x;
     this.y = y;
+    this.angle = angle;
 }
 
 /**

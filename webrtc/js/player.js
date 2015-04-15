@@ -44,8 +44,6 @@ PlayerClass.prototype.parent = EntityClass.prototype;
  */
 function PlayerClass(type) {
 
-
-
     this._margin = 10;               // px margin to the cell frame
     this._color = PlayerColors[0];  // set default color
 
@@ -63,7 +61,6 @@ function PlayerClass(type) {
     this.AnimationFrames = [1,2,3,4,5,6,7,8];
     this.frameIndex = 0;
     this.isMoving = false;
-    this.orientation = 0;
 
     this._tileSheet = new Image();
 
@@ -239,17 +236,17 @@ PlayerClass.prototype.draw = function() {
 
 PlayerClass.prototype.setOrientation = function(delta) {
     if(delta < 0) {
-        this.orientation = delta+360;
+        this.angle = delta+360;
     } else if(delta >= 360) {
-        this.orientation = delta - 360;
+        this.angle = delta - 360;
     } else {
 
-        this.orientation = delta;
+        this.angle = delta;
     }
 };
 
 PlayerClass.prototype.getOrientation = function() {
-    return this.orientation;
+    return this.angle;
 };
 
 /**
@@ -326,11 +323,14 @@ PlayerClass.prototype.sendPos = function(x, y, orientation) {
  * Receive a position message <msg> by connection <conn> and interpret it.
  */
 PlayerClass.prototype.receivePos = function(conn, msg) {
-    if (this._type !== PlayerTypeRemote // ONLY for remote players
-        || msg.id !== this._id) return;    // ONLY if the ids dont match
+    if ( // ONLY for remote players
+        msg.id !== this._id) return;    // ONLY if the ids dont match
+
+    console.log("Angle: " + msg.angle);
 
     // set the position
     this.set(msg.pos[0], msg.pos[1], msg.angle);
+    this.setOrientation(msg.angle);
     this._checkDestinationCell(msg.pos[0], msg.pos[1]);
 };
 

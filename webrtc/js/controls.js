@@ -44,7 +44,6 @@ ControlsClass.prototype.setup = function(playerRef, keyConf) {
 			this.moveForward();
 		}
 		if (map[keyConf[3]] == true) {
-			this._player.setIsMoving(true);
 			this.moveBackwards();
 		}
 		if (map[keyConf[4]] == true) {
@@ -81,6 +80,7 @@ ControlsClass.prototype.moveLeft = function() {
 
 	var orie = this._player.getOrientation();
 	this._player.setOrientation(orie - Conf.turnSpeed);
+	this.moveBy(0, 0, orie);
 };
 
 
@@ -96,6 +96,7 @@ ControlsClass.prototype.moveRight = function() {
 
 	var orie = this._player.getOrientation();
 	this._player.setOrientation(orie + Conf.turnSpeed);
+	this.moveBy(0, 0, orie);
 	//this._player.moveBy(Conf.playerSpeed, 0);
 };
 

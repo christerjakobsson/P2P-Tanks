@@ -58,7 +58,7 @@ P2PCommClass.prototype.getPeerId = function() {
 P2PCommClass.prototype.createPeer = function(successFn, errorFn) {
       // This object will take in an array of XirSys STUN / TURN servers
     // and override the original config object
-    var customConfig;
+    var customConfig = null;
 
     // Call XirSys ICE servers
     $.ajax({
@@ -80,13 +80,19 @@ P2PCommClass.prototype.createPeer = function(successFn, errorFn) {
         },
         async: false
     });
- 
-      // create a peer
-    this._peer = new Peer({
-        key: 'vl9xqxhaptfyldi',
-        debug:  Conf.peerJsDebug,
-        config: customConfig
-    });
+    if(customConfig != null) {
+          // create a peer
+        this._peer = new Peer({
+            key: 'vl9xqxhaptfyldi',
+            debug:  Conf.peerJsDebug,
+            config: customConfig
+        });
+    } else {
+        this._peer = new Peer({
+            key: 'vl9xqxhaptfyldi',
+            debug:  Conf.peerJsDebug
+        });
+    }
 
     // set the 'open' handler function
     this._peer.on('open', function(pid) {
