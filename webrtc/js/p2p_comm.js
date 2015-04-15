@@ -80,7 +80,7 @@ P2PCommClass.prototype.createPeer = function(successFn, errorFn) {
         },
         async: false
     });
-
+ 
       // create a peer
     this._peer = new Peer({
         key: 'vl9xqxhaptfyldi',
