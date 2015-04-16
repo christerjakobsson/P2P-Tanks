@@ -35,15 +35,19 @@ ControlsClass.prototype.setup = function(playerRef, keyConf) {
 
 		/*insert conditional here*/
 		if(map[keyConf[0]] == true) {
+			console.log("Left");
 			this.moveLeft();
 		}
 		if (map[keyConf[1]] == true) {
+			console.log("Right");
 			this.moveRight();
 		}
 		if (map[keyConf[2]] == true) {
+			console.log("Forward");
 			this.moveForward();
 		}
 		if (map[keyConf[3]] == true) {
+			console.log("Backwards");
 			this.moveBackwards();
 		}
 		if (map[keyConf[4]] == true) {
