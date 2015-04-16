@@ -80,7 +80,7 @@ ControlsClass.prototype.moveLeft = function() {
 
 	var orie = this._player.getOrientation();
 	this._player.setOrientation(orie - Conf.turnSpeed);
-	this.moveBy(0, 0, orie);
+	this._player.moveBy(0, 0, orie);
 };
 
 
@@ -96,7 +96,7 @@ ControlsClass.prototype.moveRight = function() {
 
 	var orie = this._player.getOrientation();
 	this._player.setOrientation(orie + Conf.turnSpeed);
-	this.moveBy(0, 0, orie);
+	this._player.moveBy(0, 0, orie);
 	//this._player.moveBy(Conf.playerSpeed, 0);
 };
 
