@@ -11,6 +11,7 @@ function EntityClass() {
     this.x = 0;
     this.y = 0;
     this.angle = 0;
+
     // View reference
     this._view = null;
 }

@@ -12,18 +12,52 @@
     <script>
         // Connect to PeerJS, have server assign an ID instead of providing one
         // Showing off some of the configs available with PeerJS :).
-        var peer = new Peer({
-            // Set API key for cloud server (you don't need this if you're running your
-            // own.
-            key: 'x7fwx2kavpy6tj4i',
-            // Set highest debug level (log everything!).
-            debug: 3,
-            // Set a logging function:
-            logFunction: function() {
+
+        var customConfig = null;
+
+        // Call XirSys ICE servers
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "https://api.xirsys.com/getIceServers",
+            data: {
+                ident: "shinowa",
+                secret: "a1685d29-6144-46d3-9637-35fc918479a1",
+                domain: "http://shinowa.tk",
+                application: "default",
+                room: "default",
+                secure: 0
+            },
+            success: function (data, status) {
+                // data.d is where the iceServers object lives
+                customConfig = data.d;
+                console.log(customConfig);
+            },
+            async: false
+        });
+        if(customConfig != null) {
+            // create a peer
+            this._peer = new Peer({
+                key: 'vl9xqxhaptfyldi',
+                debug: 3,
+                // Set a logging function:
+                    logFunction: function() {
                 var copy = Array.prototype.slice.call(arguments).join(' ');
                 $('.log').append(copy + '<br>');
-            }
-        });
+            },
+                config: customConfig
+            });
+        } else {
+            this._peer = new Peer({
+                key: 'vl9xqxhaptfyldi',
+                debug: 3,
+                // Set a logging function:
+                logFunction: function() {
+                    var copy = Array.prototype.slice.call(arguments).join(' ');
+                    $('.log').append(copy + '<br>');
+                }
+            });
+        }
         var connectedPeers = {};
         // Show this peer's ID.
         peer.on('open', function(id){

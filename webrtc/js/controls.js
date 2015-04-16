@@ -108,9 +108,9 @@ ControlsClass.prototype.moveRight = function() {
  * Move player up.
  */
 ControlsClass.prototype.moveForward = function() {
-	if (currentMs() - this._lastMoveKeyUsage < Conf.moveKeyRepeatTimeMs) return;
+	/*if (currentMs() - this._lastMoveKeyUsage < Conf.moveKeyRepeatTimeMs) return;
 	this._lastMoveKeyUsage = currentMs();
-
+*/
 	var orientation = this._player.getOrientation();
 	var x = Math.round(-Math.cos(orientation * Math.PI / 180) * Conf.playerSpeed);
 	var y = Math.round(-Math.sin(orientation * Math.PI / 180) * Conf.playerSpeed);
@@ -122,8 +122,9 @@ ControlsClass.prototype.moveForward = function() {
  * Move player down.
  */
 ControlsClass.prototype.moveBackwards = function() {
-	if (currentMs() - this._lastMoveKeyUsage < Conf.moveKeyRepeatTimeMs) return;
+	/*if (currentMs() - this._lastMoveKeyUsage < Conf.moveKeyRepeatTimeMs) return;
 	this._lastMoveKeyUsage = currentMs();
+*/
 
 	var orientation = this._player.getOrientation();
 	var x = Math.round(Math.cos(orientation * Math.PI / 180) * Conf.playerSpeed);

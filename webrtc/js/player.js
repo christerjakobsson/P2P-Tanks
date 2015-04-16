@@ -43,7 +43,8 @@ PlayerClass.prototype.parent = EntityClass.prototype;
  * Contructor with <type> being one of the PlayerType* values.
  */
 function PlayerClass(type) {
-
+    console.log("Constr: " + this.angle);
+    this.angle = 0;
     this._margin = 10;               // px margin to the cell frame
     this._color = PlayerColors[0];  // set default color
 
@@ -235,6 +236,7 @@ PlayerClass.prototype.draw = function() {
 };
 
 PlayerClass.prototype.setOrientation = function(delta) {
+    console.log("setOrientation: " + delta);
     if(delta < 0) {
         this.angle = delta+360;
     } else if(delta >= 360) {
@@ -246,6 +248,7 @@ PlayerClass.prototype.setOrientation = function(delta) {
 };
 
 PlayerClass.prototype.getOrientation = function() {
+    console.log("getOrientation: " + this.angle);
     return this.angle;
 };
 
@@ -253,6 +256,7 @@ PlayerClass.prototype.getOrientation = function() {
  * Move the player by <dX>, <dY>.
  */
 PlayerClass.prototype.moveBy = function(dX, dY, orientation) {
+    console.log("moveBy, angle: " + orientation);
     if (!this._alive) return;
 
     //  the destination position
@@ -261,15 +265,23 @@ PlayerClass.prototype.moveBy = function(dX, dY, orientation) {
 
 
     // check if we are still in the map.
-    if (destX < 0 || destX >= MapDimensions.w) destX = this.x;
-    if (destY < 0 || destY >= MapDimensions.h) destY = this.y;
+    if (destX < 0 || destX >= MapDimensions.w) {
+        destX = this.x;
+        console.log("destX < 0 || destX >= MapDimensions.w");
+    }
+    if (destY < 0 || destY >= MapDimensions.h) {
+        console.log("destY < 0 || destY >= MapDimensions.h");
 
-    if (mapCellIsFree(destX, destY)) {  // check if the cell is free
+        destY = this.y;
+    }
+
+    if (!mapCellIsFree(destX, destY)) {  // check if the cell is free
         if (gameMode === GameModeMultiPlayer) { // in MP mode ...
             this.sendPos(destX, destY, orientation);         // ... send the new position to all peers
 
         }
         this.set(destX, destY, orientation);                     // set the position
+        this.angle = orientation;
         this._checkDestinationCell(destX, destY);   // check if the new cell is some kind of special cell (e.g. upgrade)
     }
 };
@@ -304,7 +316,7 @@ PlayerClass.prototype._dropBombByPlayer = function(player) {
  */
 PlayerClass.prototype.sendPos = function(x, y, orientation) {
     if (this._type === PlayerTypeRemote) { return;  }    // NOT for remote players
-
+    console.log("sendPos orientation: " + orientation);
 
     // construct the message
     var msg = {
@@ -314,6 +326,9 @@ PlayerClass.prototype.sendPos = function(x, y, orientation) {
         angle:  orientation          // Orientation
     };
 
+    console.log("x: " + x);
+    console.log("y: " + y);
+    console.log("angle: " + orientation);
     // send it to all peers
     this._p2pComm.sendAll(msg);
 };
@@ -327,6 +342,8 @@ PlayerClass.prototype.receivePos = function(conn, msg) {
         msg.id !== this._id) return;    // ONLY if the ids dont match
 
     console.log("Angle: " + msg.angle);
+    console.log("x: " + msg.pos[0]);
+    console.log("y: " + msg.pos[1]);
 
     // set the position
     this.set(msg.pos[0], msg.pos[1], msg.angle);
