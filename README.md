@@ -50,7 +50,8 @@ Commit and push this change.
 3. Connect to your GitHub repo.
 4. Build settings:
 	- **Framework preset**: None
-	- **Build command**: *(leave empty)*
+	- **Build command**: `npm run pages:build`  
+	  (use this if Cloudflare does not allow an empty command)
 	- **Build output directory**: `.`
 5. Deploy.
 

@@ -5,7 +5,8 @@
   "scripts": {
     "peer": "node peer-server.js",
     "ws": "node websockets/server/websocket_server.js",
-    "serve": "python3 -m http.server 8080"
+    "serve": "python3 -m http.server 8080",
+    "pages:build": "echo 'Static frontend: no build step required'"
   },
   "dependencies": {
     "peer": "^1.0.2",
