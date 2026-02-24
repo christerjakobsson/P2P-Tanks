@@ -1,6 +1,6 @@
 /**
  * P2P-Bomberman P2P communication class.
- * Handles communication with other peer.js clients.
+ * Handles communication with other players through a relay server.
  *
  * Author: Markus Konrad <post@mkonrad.net>
  */
@@ -20,9 +20,11 @@ var MsgTypePlayerHit        = 6;   // a bullet hit a player
  * P2P communication constructor. 
  */
 function P2PCommClass() {
-    this._peer          = null;     // peer.js Peer object
-    this._conn          = null;     // shortcut to this._peer.connections
+    this._peer          = null;     // socket wrapper object
+    this._conn          = new Object();
     this._peerId        = '';       // OWN peer id
+    this._socket        = null;
+    this._joinedRoomHostId = '';
     this._msgHandler    = new Object(); // message handler with mapping msg type -> {obj, fn}
     this._connEstablishingHandler = new Array();
     this._connOpenedHandler = {obj: null, fn: null};
@@ -52,81 +54,159 @@ P2PCommClass.prototype.getPeerId = function() {
     return this._peerId;
 }
 
+P2PCommClass.prototype._createRandomPeerId = function() {
+    return 'p' + Math.random().toString(36).slice(2, 10);
+}
+
+P2PCommClass.prototype._wsUrl = function(peerId) {
+    var baseUrl = Conf.wsRelayUrl;
+    if (!baseUrl || baseUrl.length === 0) {
+        var wsProto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+        baseUrl = wsProto + location.hostname + ':8787/ws';
+    }
+
+    var sep = baseUrl.indexOf('?') >= 0 ? '&' : '?';
+    return baseUrl + sep + 'peerId=' + encodeURIComponent(peerId);
+}
+
+P2PCommClass.prototype._createConnObject = function(peerId) {
+    var connObj = {
+        peer: peerId,
+        peerjs: {
+            send: function(msg) {
+                this._sendRelay(peerId, msg);
+            }.bind(this),
+            close: function() {
+                this._sendSystem({type: 'sys:disconnect-peer', peerId: peerId});
+            }.bind(this)
+        }
+    };
+
+    this._conn[peerId] = connObj;
+    return connObj;
+}
+
+P2PCommClass.prototype._ensureConnection = function(peerId) {
+    if (!peerId || peerId === this._peerId) return null;
+    if (this._conn.hasOwnProperty(peerId)) return this._conn[peerId];
+    return this._createConnObject(peerId);
+}
+
+P2PCommClass.prototype._sendSystem = function(msg) {
+    if (!this._socket || this._socket.readyState !== WebSocket.OPEN) return;
+    this._socket.send(JSON.stringify(msg));
+}
+
+P2PCommClass.prototype._sendRelay = function(receiverId, msg) {
+    this._sendSystem({
+        type: 'relay',
+        to: receiverId,
+        payload: msg
+    });
+}
+
 /**
  *  Create a new peer. Pass a function <successFn> function(id) that will be called when
  *  we received an Id from the peer.js server and a function <errorFn>.
  */
 P2PCommClass.prototype.createPeer = function(successFn, errorFn) {
-      // This object will take in an array of XirSys STUN / TURN servers
-    // and override the original config object
-    var customConfig = null;
+    var requestedPeerId = this._createRandomPeerId();
+    var wsUrl = this._wsUrl(requestedPeerId);
 
-    // Call XirSys ICE servers
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        url: "https://api.xirsys.com/getIceServers",
-        data: {
-            ident: "shinowa",
-            secret: "a1685d29-6144-46d3-9637-35fc918479a1",
-            domain: "http://shinowa.tk",
-            application: "default",
-            room: "default",
-            secure: 0
-        },
-        success: function (data, status) {
-            // data.d is where the iceServers object lives
-            customConfig = data.d;
-            console.log(customConfig);
-        },
-        async: false
-    });
-    var peerOpts = {
-        host:   Conf.peerJsHost,
-        port:   Conf.peerJsPort,
-        path:   Conf.peerJsPath,
-        key:    Conf.peerJsKey,
-        debug:  Conf.peerJsDebug
-    };
+    this._socket = new WebSocket(wsUrl);
+    this._peer = { socket: this._socket };
 
-    if (customConfig != null) {
-        peerOpts.config = customConfig;
-    }
+    this._socket.onopen = function() {
+        if (Conf.peerJsDebug) {
+            console.log('connected to relay server');
+        }
+    }.bind(this);
 
-    this._peer = new Peer(peerOpts);
-
-    // set the 'open' handler function
-    this._peer.on('open', function(pid) {
-        console.log('created peer with id ' + pid);
-
-        // set peer id and connection status
-        this._peerId = pid;
-
-        // call success function
-        successFn.call(this, pid);
-    }.bind(this));
-
-    // error handler
-    this._peer.on('error', function(err) {
+    this._socket.onerror = function(err) {
         this._peerId = '';
-        // call the default and the custom error function
-
         defaultErrorFn.call(this, err);
         errorFn.call(this, err);
-    }.bind(this));    // watch for errors!
+    }.bind(this);
 
-    // new peer connection handler for incoming connections
-    this._peer.on('connection', function(conn) {
-        this._incomingConnection(conn);
-    }.bind(this));
+    this._socket.onclose = function() {
+        if (Conf.peerJsDebug) {
+            console.log('connection to relay server closed');
+        }
+    }.bind(this);
 
-    // connection to peer server is closed
-    this._peer.on('close', function() {
-        console.log('connection to peer server closed');
-    }.bind(this));
+    this._socket.onmessage = function(evt) {
+        var incoming = null;
+        try {
+            incoming = JSON.parse(evt.data);
+        } catch (e) {
+            return;
+        }
 
-    // set shortcut
-    this._conn = this._peer.connections;
+        if (!incoming || !incoming.type) return;
+
+        if (incoming.type === 'sys:welcome') {
+            this._peerId = incoming.peerId || requestedPeerId;
+            this._joinedRoomHostId = this._peerId;
+            successFn.call(this, this._peerId);
+            return;
+        }
+
+        if (incoming.type === 'sys:joined-room') {
+            var peers = incoming.peers || [];
+            for (var i = 0; i < peers.length; i++) {
+                var peerId = peers[i];
+                if (peerId === this._peerId) continue;
+                var c = this._ensureConnection(peerId);
+                if (c && this._connOpenedHandler.fn) {
+                    this._connOpenedHandler.fn.call(this._connOpenedHandler.obj, peerId);
+                }
+            }
+
+            if (this._connEstablishingHandler.length >= 2) {
+                var cbJoined = this._connEstablishingHandler[1];
+                cbJoined.fn.call(cbJoined.obj, incoming.hostId || '');
+            }
+            return;
+        }
+
+        if (incoming.type === 'sys:peer-joined') {
+            var joinedPeer = incoming.peerId;
+            var conn = this._ensureConnection(joinedPeer);
+            if (conn && this._connOpenedHandler.fn) {
+                this._connOpenedHandler.fn.call(this._connOpenedHandler.obj, joinedPeer);
+            }
+            return;
+        }
+
+        if (incoming.type === 'sys:peer-left') {
+            var leftPeer = incoming.peerId;
+            if (this._conn.hasOwnProperty(leftPeer)) {
+                delete this._conn[leftPeer];
+                if (this._connClosedHandler.fn) {
+                    this._connClosedHandler.fn.call(this._connClosedHandler.obj, leftPeer);
+                }
+            }
+            return;
+        }
+
+        if (incoming.type === 'sys:error') {
+            defaultErrorFn.call(this, new Error(incoming.message || 'relay error'));
+            if (this._connEstablishingHandler.length >= 3) {
+                var cbErr = this._connEstablishingHandler[2];
+                cbErr.fn.call(cbErr.obj);
+            }
+            return;
+        }
+
+        if (incoming.type === 'relay') {
+            var fromPeer = incoming.from;
+            var payload = incoming.payload;
+            var relayConn = this._ensureConnection(fromPeer);
+            if (relayConn) {
+                this._incomingData(relayConn, payload);
+            }
+        }
+    }.bind(this);
 }
 
 /**
@@ -139,29 +219,8 @@ P2PCommClass.prototype.joinPeer = function(peerId) {
     var cbJoining = this._connEstablishingHandler[0];
     cbJoining.fn.call(cbJoining.obj, peerId);
 
-    // connect to a peer
-    var conn = this._peer.connect(peerId);
-
-    // success handler for outgoing connection
-    conn.on('open', function() {
-        console.log('opened connection to peer ' + conn.peer);
-
-        // callback#2: joined
-        var cbJoined = this._connEstablishingHandler[1];
-        cbJoined.fn.call(cbJoined.obj, conn.peer);
-    }.bind(this));
-
-    // error handler
-    conn.on('error', function(err) {
-        defaultErrorFn.call(this, err);
-        
-        // callback#3: joined
-        var cbErr = this._connEstablishingHandler[2];
-        cbErr.fn.call(cbErr.obj);
-    }.bind(this));    // watch for errors!
-
-    // set data receiver function
-    this._setupConnectionHandlers(conn);
+    this._joinedRoomHostId = peerId;
+    this._sendSystem({type: 'sys:join-room', hostId: peerId});
 }
 
 /**
@@ -169,7 +228,7 @@ P2PCommClass.prototype.joinPeer = function(peerId) {
  */
 P2PCommClass.prototype.disconnectFromPeer = function(peerId) {
     console.log('closing connection to peer ' + peerId);
-    this._conn[peerId].peerjs.close();
+    this._sendSystem({type: 'sys:disconnect-peer', peerId: peerId});
 }
 
 /**
@@ -276,10 +335,7 @@ P2PCommClass.prototype.sendPlayerMetaData = function(receiverId, pl_id, pl_name,
  */
 P2PCommClass.prototype.sendAll = function(msg) {
     console.log('sending message of type ' + msg.type + ' to all');
-    for (var peerId in this._conn) {
-        var c = this._conn[peerId].peerjs;
-        c.send(msg);
-    }
+    this._sendSystem({type: 'relay', payload: msg});
 }
 
 /**
@@ -287,7 +343,7 @@ P2PCommClass.prototype.sendAll = function(msg) {
  */
 P2PCommClass.prototype.sendTo = function(receiverId, msg) {
     console.log('sending message of type ' + msg.type + ' to peer ' + receiverId);
-    this._conn[receiverId].peerjs.send(msg);
+    this._sendRelay(receiverId, msg);
 }
 
 /**
@@ -352,27 +408,9 @@ P2PCommClass.prototype._receiveKnownPeers = function(conn, msg) {
  * Set up connection event handlers for a connection <conn>.
  */
 P2PCommClass.prototype._setupConnectionHandlers = function(conn) {
-    // success handler for outgoing connection
-    conn.on('open', function() {
-        console.log('opened connection to peer ' + conn.peer);
+    if (this._connOpenedHandler.fn) {
         this._connOpenedHandler.fn.call(this._connOpenedHandler.obj, conn.peer);
-    }.bind(this));
-
-    // error handler
-    conn.on('error', function(err) {
-        defaultErrorFn.call(this, err);
-    }.bind(this));    // watch for errors!
-
-    // set data receiver function
-    conn.on('data', function(msg) {
-        this._incomingData(conn, msg);
-    }.bind(this));
-
-    // connection closed handler
-    conn.on('close', function(peerId) {
-        console.log('connection closed from peer ' + peerId);
-        this._connClosedHandler.fn.call(this._connClosedHandler.obj, peerId);
-    }.bind(this, conn.peer));
+    }
 }
 
 /**
@@ -396,6 +434,6 @@ P2PCommClass.prototype._incomingData = function(conn, msg) {
             hndl.fn.call(hndl.obj, conn, msg);    // call the handler functon hndl.fn on object hndl.obj with parameter msg
         }
     } else {    // there is no handler for this type
-        console.err('no msg handler for type ' + msg.type);
+        console.error('no msg handler for type ' + msg.type);
     }
 }
