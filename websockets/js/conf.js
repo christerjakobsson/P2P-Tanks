@@ -5,8 +5,8 @@
  */
 
 var Conf = {
-	turnSpeed: 5,					// Player turn speed
-	playerSpeed: 9,				// Player movement speed
+	turnSpeed: 4.5,				// Player turn speed
+	playerSpeed: 8.5,			// Player movement speed
 	maxNumPlayers: 4,				// max. number of players in a game
 	maxBombStrength: 5,				// max. bomb strength by upgrades
 	upgradePossibility: 0.10,		// possibility rate of wheather an upgrade occurs or not
