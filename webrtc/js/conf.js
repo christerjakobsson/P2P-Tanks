@@ -18,7 +18,7 @@ var Conf = {
 	peerJsPort: 9000,				// peer.js server host port
 	peerJsPath: '/peerjs',		// peer.js server path
 	peerJsDebug: true,				// peer.js debug mode
-	wsRelayUrl: '',					// e.g. wss://<worker-subdomain>.workers.dev/ws
+	wsRelayUrl: 'wss://p2p-tanks-relay.jakobsson-christer.workers.dev/ws',					// e.g. wss://<worker-subdomain>.workers.dev/ws
 	playerMaxHp: 3,					// maximum hit points per player
 	tankHalfSize: 16,				// half the tank sprite width/height in pixels (32/2)
 	bulletHitRadius: 18,			// distance threshold for a bullet hitting a tank
