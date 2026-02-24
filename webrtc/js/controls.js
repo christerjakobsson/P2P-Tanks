@@ -33,33 +33,21 @@ ControlsClass.prototype.setup = function(playerRef, keyConf) {
 			this._player.setIsMoving(false);
 		}
 
-		/*insert conditional here*/
 		if(map[keyConf[0]] == true) {
-			console.log("Left");
 			this.moveLeft();
 		}
 		if (map[keyConf[1]] == true) {
-			console.log("Right");
 			this.moveRight();
 		}
 		if (map[keyConf[2]] == true) {
-			console.log("Forward");
 			this.moveForward();
 		}
 		if (map[keyConf[3]] == true) {
-			console.log("Backwards");
 			this.moveBackwards();
 		}
 		if (map[keyConf[4]] == true) {
 			this.shoot();
 		}
-
-		/*
-		 if(!map[keyConf[2]] && !map[keyConf[3]]) {
-		 this._player.setIsMoving(false);
-		 }
-		 */
-
 
 	}.bind(this));
 
@@ -77,11 +65,6 @@ ControlsClass.prototype.setup = function(playerRef, keyConf) {
  * Move player left.
  */
 ControlsClass.prototype.moveLeft = function() {
-	/*
-	 if (currentMs() - this._lastMoveKeyUsage < Conf.moveKeyRepeatTimeMs) return;
-	 this._lastMoveKeyUsage = currentMs();
-	 */
-
 	var orie = this._player.getOrientation();
 	this._player.setOrientation(orie - Conf.turnSpeed);
 	this._player.moveBy(0, 0, orie);
@@ -93,15 +76,9 @@ ControlsClass.prototype.moveLeft = function() {
  * Move player right.
  */
 ControlsClass.prototype.moveRight = function() {
-	/*
-	 if (currentMs() - this._lastMoveKeyUsage < Conf.moveKeyRepeatTimeMs) return;
-	 this._lastMoveKeyUsage = currentMs();
-	 */
-
 	var orie = this._player.getOrientation();
 	this._player.setOrientation(orie + Conf.turnSpeed);
 	this._player.moveBy(0, 0, orie);
-	//this._player.moveBy(Conf.playerSpeed, 0);
 };
 
 /**

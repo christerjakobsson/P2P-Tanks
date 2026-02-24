@@ -16,6 +16,9 @@ var Conf = {
 	peerJsKey: 'br03fw97a5uerk9',		// peer.js server host
 	peerJsPort: 9000,				// peer.js server host port
 	peerJsDebug: true,				// peer.js debug mode
+	playerMaxHp: 3,					// maximum hit points per player
+	tankHalfSize: 16,				// half the tank sprite width/height in pixels (32/2)
+	bulletHitRadius: 18,			// distance threshold for a bullet hitting a tank
 	arrowKeyMapping: new Array(		// key mapping for arrow keys configuration
 		37, 39,
 		38, 40,

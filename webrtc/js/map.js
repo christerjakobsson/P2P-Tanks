@@ -1,85 +1,99 @@
 /**
- * P2P-Bomberman map class.
- * Displays a map of cells with different types and properties.
+ * P2P-Tanks map class.
+ * Tile-based 20×20 map with border walls and interior obstacles.
  *
- * Author: Markus Konrad <post@mkonrad.net>
+ * Based on original P2P-Bomberman framework by Markus Konrad.
  */
 
-/**
- * Define colors for different types of maps.
- */
-var MapColors = new Object();
-MapColors[' '] = 'darkgrey';	// indistructable cell
-MapColors[' '] = 'white';		// distructable cell
-MapColors[' '] = 'black';		// free cell
-// MapColors['U'] = 'red';		
-// additional types: 'B' for bomb
-// 					 'U' for upgrade	(increases bomb strength)
+/** Tile dimensions */
+var MapTileSize = 32;   // pixels per tile
+var MapTilesX   = 20;   // number of tile columns
+var MapTilesY   = 20;   // number of tile rows
 
-var MapGridColor = 'grey';			// grid line color
-
-/**
- * Define map dimensions.
- */
+/** Canvas pixel dimensions (kept for boundary checks) */
 var MapDimensions = {
-	w: 640,
-	h: 640
+    w: MapTilesX * MapTileSize,   // 640
+    h: MapTilesY * MapTileSize    // 640
 };
 
+/** Cell-type colours */
+var MapColors = {};
+MapColors['X'] = '#555555';   // wall (solid grey)
+MapColors[' '] = '#1a1a2e';   // free space (dark navy)
+
 /**
- * Define map data with cell types.
+ * Build the 20×20 tile map.
+ *   'X' = impassable wall
+ *   ' ' = free space
+ *   'P' = player spawn point (also free)
  */
+var MapData = new Array(MapTilesX * MapTilesY);
 
-var MapData = new Array( );
-var w = MapDimensions.w;
-
-for(var y = 0; y < MapDimensions.w; y++) {
-	for(var x = 0; x < MapDimensions.h; x++) {
-		if(Math.floor((Math.random() * 100) + 1) < 3) {
-			MapData[y * w + x] = 'P';
-		} else {
-			MapData[y * w + x] = ' ';
-		}
-	}
+// Fill everything with free space
+for (var _mi = 0; _mi < MapData.length; _mi++) {
+    MapData[_mi] = ' ';
 }
 
+// Border walls
+for (var _my = 0; _my < MapTilesY; _my++) {
+    for (var _mx = 0; _mx < MapTilesX; _mx++) {
+        if (_mx === 0 || _my === 0 || _mx === MapTilesX - 1 || _my === MapTilesY - 1) {
+            MapData[_my * MapTilesX + _mx] = 'X';
+        }
+    }
+}
 
-/*
- var MapData = new Array(
- ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P', ' ',
- 'P', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P',
- 'P', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
- );
- */
+// Interior obstacle clusters (4-corner groups + central cross)
+var _wallTiles = [
+    // top-left cluster
+    [3,3],[4,3],[3,4],[4,4],
+    // top-right cluster
+    [15,3],[16,3],[15,4],[16,4],
+    // bottom-left cluster
+    [3,15],[4,15],[3,16],[4,16],
+    // bottom-right cluster
+    [15,15],[16,15],[15,16],[16,16],
+    // central cross
+    [9,8],[10,8],[9,11],[10,11],
+    [8,9],[8,10],[11,9],[11,10]
+];
+for (var _wi = 0; _wi < _wallTiles.length; _wi++) {
+    MapData[_wallTiles[_wi][1] * MapTilesX + _wallTiles[_wi][0]] = 'X';
+}
+
+// Spawn points – one at each inner corner
+MapData[1  * MapTilesX + 1]               = 'P';   // top-left
+MapData[1  * MapTilesX + (MapTilesX - 2)] = 'P';   // top-right
+MapData[(MapTilesY - 2) * MapTilesX + 1]               = 'P';   // bottom-left
+MapData[(MapTilesY - 2) * MapTilesX + (MapTilesX - 2)] = 'P';   // bottom-right
 
 /**
- * Helper function to return the cell type at map position <x>, <y>.
+ * Return the tile type at PIXEL position (pixelX, pixelY).
  */
-function mapCellType(x, y) {
-	return MapData[y * MapDimensions.w + x];
+function mapCellType(pixelX, pixelY) {
+    var tx = Math.floor(pixelX / MapTileSize);
+    var ty = Math.floor(pixelY / MapTileSize);
+    if (tx < 0 || tx >= MapTilesX || ty < 0 || ty >= MapTilesY) return 'X';
+    return MapData[ty * MapTilesX + tx];
 }
 
 /**
- * Helper function to tell if map position <x>, <y> is traversable.
+ * Return true when the tile under PIXEL position (pixelX, pixelY) is traversable.
  */
-function mapCellIsFree(x, y) {
-
-	var t = mapCellType(x, y);
-	return (t === ' ' || t === 'P' || t === 'U' || t === ' ');
+function mapCellIsFree(pixelX, pixelY) {
+    var t = mapCellType(pixelX, pixelY);
+    return (t === ' ' || t === 'P' || t === 'U');
 }
 
 /**
- * Helper function to set map cell at position <x>, <y> to type <t>.
+ * Set the tile under PIXEL position (pixelX, pixelY) to type <t>.
  */
-function mapCellSet(x, y, t) {
-	MapData[y * MapDimensions.w + x] = t;
+function mapCellSet(pixelX, pixelY, t) {
+    var tx = Math.floor(pixelX / MapTileSize);
+    var ty = Math.floor(pixelY / MapTileSize);
+    if (tx >= 0 && tx < MapTilesX && ty >= 0 && ty < MapTilesY) {
+        MapData[ty * MapTilesX + tx] = t;
+    }
 }
 
 /**
@@ -92,80 +106,60 @@ MapClass.constructor = MapClass;
  * MapClass constructor.
  */
 function MapClass() {
-	var w = MapDimensions.w;
-	var h = MapDimensions.h;
+    this._p2pComm = null;
 
-	this._p2pComm = null;
-
-	// create array of possible spawn points.
-	this._spawnPoints = new Array();
-	for (var y = 0; y < h; y++) {
-		for (var x = 0; x < w; x++) {
-			if (MapData[y * w + x] === 'P') {
-				this._spawnPoints.push(new Array(x, y));
-			}
-		}
-	}
+    // Collect spawn points (stored as pixel top-left coordinates of the tile)
+    this._spawnPoints = [];
+    for (var my = 0; my < MapTilesY; my++) {
+        for (var mx = 0; mx < MapTilesX; mx++) {
+            if (MapData[my * MapTilesX + mx] === 'P') {
+                this._spawnPoints.push([mx * MapTileSize, my * MapTileSize]);
+            }
+        }
+    }
 }
 
 /**
- * Set the P2PCommClass reference to <p2pCommRef> and set a message handler
- * for receiving upgrade messages.
+ * Set the P2PCommClass reference and register the upgrade-message handler.
  */
 MapClass.prototype.setP2PComm = function(p2pCommRef) {
-	this._p2pComm = p2pCommRef;
-
-	// set a message handler for "upgrade" messages
-	this._p2pComm.setMsgHandler(MsgTypePlayerUpgrade,   this, this.receivedUpgradeMsg);
+    this._p2pComm = p2pCommRef;
+    this._p2pComm.setMsgHandler(MsgTypePlayerUpgrade, this, this.receivedUpgradeMsg);
 };
 
 /**
- * Return array of spawnpoints
+ * Return the array of spawn points.
  */
 MapClass.prototype.getSpawnPoints = function() {
-	return this._spawnPoints;
+    return this._spawnPoints;
 };
 
 /**
- * Draw the whole map with its cells.
+ * Draw the tile map.
  */
 MapClass.prototype.draw = function() {
-	var w = MapDimensions.w;
-	var h = MapDimensions.h;
+    var ctx = this._view._ctx;
 
-	// draw cells
-	for (var y = 0; y < h; y++) {
-		for (var x = 0; x < w; x++) {
-			// get cell type at cell x, y
-			var cellType = MapData[y * w + x];
+    // Background fill
+    ctx.fillStyle = MapColors[' '];
+    ctx.fillRect(0, 0, MapDimensions.w, MapDimensions.h);
 
-			if (cellType === ' ' || cellType === ' ') {	// draw "blocking" cell types
-				this._view.drawCell(x, y, MapColors[cellType]);
-			} else if (cellType === 'U') {				// draw upgrade item
-				this._view.drawUpgradeItem(x, y, 10, 'yellow');
-			}
-		}
-	}
-
-	// draw grid horizontally
-	for (var y = 0; y < h; y++) {
-		var yCoord = y * this._view.cellH;
-		this._view.line(0, yCoord, w * this._view.cellW, yCoord, MapGridColor);
-	}
-
-	// draw grid vertically
-	for (var x = 0; x < w; x++) {
-		var xCoord = x * this._view.cellW;
-		this._view.line(xCoord, 0, xCoord, h * this._view.cellH, MapGridColor);
-	}
+    // Draw wall and upgrade tiles
+    for (var my = 0; my < MapTilesY; my++) {
+        for (var mx = 0; mx < MapTilesX; mx++) {
+            var cellType = MapData[my * MapTilesX + mx];
+            if (cellType === 'X') {
+                this._view.drawCell(mx, my, MapColors['X']);
+            } else if (cellType === 'U') {
+                this._view.drawUpgradeItem(mx, my, 4, 'yellow');
+            }
+        }
+    }
 };
 
 /**
- * P2P message handler function for receiving a message <msg> from connection <conn>
- * of type MsgTypePlayerUpgrade. It will set a cell type to "upgrade" for the position
- * contained in the message.
+ * P2P handler for MsgTypePlayerUpgrade – mark a tile as an upgrade item.
  */
 MapClass.prototype.receivedUpgradeMsg = function(conn, msg) {
-	// set to cell type 'U' (upgrade item) at the submitted position.
-	mapCellSet(msg.pos[0], msg.pos[1], 'U');
+    mapCellSet(msg.pos[0], msg.pos[1], 'U');
 };

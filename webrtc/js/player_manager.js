@@ -95,13 +95,17 @@ PlayerManagerClass.prototype.removePlayer = function(playerId) {
 PlayerManagerClass.prototype.checkGameStatus = function() {
     // check how many are still alive
     var numAlive = 0;
+    var lastAlive = null;
     for (var i in this._players) {
-        if (this._players[i].getAlive() === true) numAlive++;
+        if (this._players[i].getAlive() === true) {
+            numAlive++;
+            lastAlive = this._players[i];
+        }
     }
 
-    // no one's alive so the round ended
-    if (numAlive === 0) {
-        game.roundEnded();
+    // one or fewer players alive → round over
+    if (numAlive <= 1) {
+        game.roundEnded(lastAlive);
     }
 }
 

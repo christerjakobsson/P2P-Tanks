@@ -14,6 +14,7 @@ var MsgTypePlayerPos        = 2;
 var MsgTypePlayerSpawnPoint = 3;
 var MsgTypePlayerBomb       = 4;
 var MsgTypePlayerUpgrade    = 5;
+var MsgTypePlayerHit        = 6;   // a bullet hit a player
 
 /**
  * P2P communication constructor. 

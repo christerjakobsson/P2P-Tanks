@@ -58,6 +58,7 @@ function PlayerClass(type) {
     this._p2pComm = null;       // P2P Communication Class (only MP)
 
     this._bombStrength = 1;     // bomb strength given to the bombs of this player
+    this._hp = Conf.playerMaxHp;        // hit points
 
     this.AnimationFrames = [1,2,3,4,5,6,7,8];
     this.frameIndex = 0;
@@ -85,6 +86,7 @@ PlayerClass.prototype.setup = function(viewRef, playerManagerRef, p2pRef) {
         this._p2pComm = p2pRef;
         this._p2pComm.setMsgHandler(MsgTypePlayerPos,  this, this.receivePos, true);
         this._p2pComm.setMsgHandler(MsgTypePlayerBomb, this, this.receiveBomb, true);
+        this._p2pComm.setMsgHandler(MsgTypePlayerHit,  this, this.receiveHit, true);
     }
 };
 
@@ -236,7 +238,6 @@ PlayerClass.prototype.draw = function() {
 };
 
 PlayerClass.prototype.setOrientation = function(delta) {
-    console.log("setOrientation: " + delta);
     if(delta < 0) {
         this.angle = delta+360;
     } else if(delta >= 360) {
@@ -248,7 +249,6 @@ PlayerClass.prototype.setOrientation = function(delta) {
 };
 
 PlayerClass.prototype.getOrientation = function() {
-    console.log("getOrientation: " + this.angle);
     return this.angle;
 };
 
@@ -256,33 +256,29 @@ PlayerClass.prototype.getOrientation = function() {
  * Move the player by <dX>, <dY>.
  */
 PlayerClass.prototype.moveBy = function(dX, dY, orientation) {
-    console.log("moveBy, angle: " + orientation);
     if (!this._alive) return;
 
     //  the destination position
     var destX = this.x + dX;
     var destY = this.y + dY;
 
-
     // check if we are still in the map.
     if (destX < 0 || destX >= MapDimensions.w) {
         destX = this.x;
-        console.log("destX < 0 || destX >= MapDimensions.w");
     }
     if (destY < 0 || destY >= MapDimensions.h) {
-        console.log("destY < 0 || destY >= MapDimensions.h");
-
         destY = this.y;
     }
 
-    if (!mapCellIsFree(destX, destY)) {  // check if the cell is free
+    // Check tank centre for wall collision
+    if (mapCellIsFree(destX + Conf.tankHalfSize, destY + Conf.tankHalfSize)) {
         if (gameMode === GameModeMultiPlayer) { // in MP mode ...
             this.sendPos(destX, destY, orientation);         // ... send the new position to all peers
 
         }
         this.set(destX, destY, orientation);                     // set the position
         this.angle = orientation;
-        this._checkDestinationCell(destX, destY);   // check if the new cell is some kind of special cell (e.g. upgrade)
+        this._checkDestinationCell(destX + Conf.tankHalfSize, destY + Conf.tankHalfSize);   // check if the new cell is some kind of special cell (e.g. upgrade)
     }
 };
 
@@ -316,7 +312,6 @@ PlayerClass.prototype._dropBombByPlayer = function(player) {
  */
 PlayerClass.prototype.sendPos = function(x, y, orientation) {
     if (this._type === PlayerTypeRemote) { return;  }    // NOT for remote players
-    console.log("sendPos orientation: " + orientation);
 
     // construct the message
     var msg = {
@@ -326,9 +321,6 @@ PlayerClass.prototype.sendPos = function(x, y, orientation) {
         angle:  orientation          // Orientation
     };
 
-    console.log("x: " + x);
-    console.log("y: " + y);
-    console.log("angle: " + orientation);
     // send it to all peers
     this._p2pComm.sendAll(msg);
 };
@@ -340,10 +332,6 @@ PlayerClass.prototype.sendPos = function(x, y, orientation) {
 PlayerClass.prototype.receivePos = function(conn, msg) {
     if ( // ONLY for remote players
         msg.id !== this._id) return;    // ONLY if the ids dont match
-
-    console.log("Angle: " + msg.angle);
-    console.log("x: " + msg.pos[0]);
-    console.log("y: " + msg.pos[1]);
 
     // set the position
     this.set(msg.pos[0], msg.pos[1], msg.angle);
@@ -378,6 +366,47 @@ PlayerClass.prototype.receiveBomb = function(conn, msg) {
 
     // let the player drop the bomb
     this._dropBombByPlayer(this);
+};
+
+/**
+ * Fire a bullet in the direction the tank is currently facing.
+ */
+PlayerClass.prototype.shoot = function() {
+    if (!this._alive) return;
+
+    var bullet = new BulletClass();
+    bullet.setup(this._view, this._playerManager, this._p2pComm);
+    bullet.fireFrom(this);
+};
+
+/**
+ * Reduce this player's hit points by 1. Kill when HP reaches 0.
+ */
+PlayerClass.prototype.hit = function() {
+    if (!this._alive) return;
+
+    this._hp--;
+    if (this._hp <= 0) {
+        this._hp = 0;
+        this.setAlive(false);
+        this._playerManager.checkGameStatus();
+    }
+};
+
+/**
+ * Return the current hit points.
+ */
+PlayerClass.prototype.getHP = function() {
+    return this._hp;
+};
+
+/**
+ * P2P message handler for MsgTypePlayerHit.
+ * Received when a remote peer's bullet has hit this player.
+ */
+PlayerClass.prototype.receiveHit = function(conn, msg) {
+    if (msg.id !== this._id) return;
+    this.hit();
 };
 
 /**
