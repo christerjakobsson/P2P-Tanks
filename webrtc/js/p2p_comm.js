@@ -81,19 +81,19 @@ P2PCommClass.prototype.createPeer = function(successFn, errorFn) {
         },
         async: false
     });
-    if(customConfig != null) {
-          // create a peer
-        this._peer = new Peer({
-            key: 'vl9xqxhaptfyldi',
-            debug:  Conf.peerJsDebug,
-            config: customConfig
-        });
-    } else {
-        this._peer = new Peer({
-            key: 'vl9xqxhaptfyldi',
-            debug:  Conf.peerJsDebug
-        });
+    var peerOpts = {
+        host:   Conf.peerJsHost,
+        port:   Conf.peerJsPort,
+        path:   Conf.peerJsPath,
+        key:    Conf.peerJsKey,
+        debug:  Conf.peerJsDebug
+    };
+
+    if (customConfig != null) {
+        peerOpts.config = customConfig;
     }
+
+    this._peer = new Peer(peerOpts);
 
     // set the 'open' handler function
     this._peer.on('open', function(pid) {

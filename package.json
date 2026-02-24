@@ -1,0 +1,14 @@
+{
+  "name": "p2p-tanks",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "peer": "node peer-server.js",
+    "ws": "node websockets/server/websocket_server.js",
+    "serve": "python3 -m http.server 8080"
+  },
+  "dependencies": {
+    "peer": "^1.0.2",
+    "websocket": "^1.0.34"
+  }
+}

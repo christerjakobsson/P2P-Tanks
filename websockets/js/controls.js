@@ -21,33 +21,40 @@ function ControlsClass() {
 ControlsClass.prototype.setup = function(playerRef, keyConf) {
     this._player = playerRef;
 
+	var keyCodes = keyConf.map(function(k) {
+		if (typeof k === 'number') return k;
+		if (typeof k === 'string' && k.length > 0) return k.toUpperCase().charCodeAt(0);
+		return k;
+	});
+
 	var map = [];
-	$(document).bind('keydown || keyup', function (e) {
+	$(document).bind('keydown keyup', function (e) {
 
 		e = e || event; // to deal with IE
-		map[e.keyCode] = e.type == 'keydown';
+		var keyCode = e.which || e.keyCode;
+		map[keyCode] = e.type == 'keydown';
 
-		if(map[keyConf[0]] || map[keyConf[1]] || map[keyConf[2]] || map[keyConf[3]]) {
+		if(map[keyCodes[0]] || map[keyCodes[1]] || map[keyCodes[2]] || map[keyCodes[3]]) {
 			this._player.setIsMoving(true);
 		} else {
 			this._player.setIsMoving(false);
 		}
 
 		/*insert conditional here*/
-		if(map[keyConf[0]] == true) {
+		if(map[keyCodes[0]] == true) {
 			this.moveLeft();
 		}
-		if (map[keyConf[1]] == true) {
+		if (map[keyCodes[1]] == true) {
 			this.moveRight();
 		}
-		if (map[keyConf[2]] == true) {
+		if (map[keyCodes[2]] == true) {
 			this.moveForward();
 		}
-		if (map[keyConf[3]] == true) {
+		if (map[keyCodes[3]] == true) {
 			this._player.setIsMoving(true);
 			this.moveBackwards();
 		}
-		if (map[keyConf[4]] == true) {
+		if (map[keyCodes[4]] == true) {
 			this.shoot();
 		}
 

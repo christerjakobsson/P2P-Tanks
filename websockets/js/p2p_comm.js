@@ -57,18 +57,12 @@ P2PCommClass.prototype.getPeerId = function() {
  */
 P2PCommClass.prototype.createPeer = function(successFn, errorFn) {
    this._peer = new Peer({
-        key: Conf.peerJsKey,
-        debug: Conf.peerJsDebug
+        host:   Conf.peerJsHost,
+        port:   Conf.peerJsPort,
+        path:   Conf.peerJsPath,
+        key:    Conf.peerJsKey,
+        debug:  Conf.peerJsDebug
     });
-
-        /*
-        // create a peer
-        this._peer = new Peer({
-            host:   Conf.peerJsHost,
-            port:   Conf.peerJsPort,
-            debug:  Conf.peerJsDebug
-        });
-        */
 
     // set the 'open' handler function
     this._peer.on('open', function(pid) {

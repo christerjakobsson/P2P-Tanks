@@ -13,6 +13,7 @@ function ControlsClass() {
 	this._player = null;		// referenced (controlled) PlayerClass object.
 	this._lastBombKeyUsage = 0;	// ms of last bomb key usage
 	this._lastMoveKeyUsage = 0;	// ms of last move key usage
+	this._inputUpdateInterval = null;
 }
 
 /**
@@ -21,35 +22,66 @@ function ControlsClass() {
 ControlsClass.prototype.setup = function(playerRef, keyConf) {
 	this._player = playerRef;
 
+	var keyCodes = keyConf.map(function(k) {
+		if (typeof k === 'number') return k;
+		if (typeof k === 'string' && k.length > 0) return k.toUpperCase().charCodeAt(0);
+		return k;
+	});
+
 	var map = [];
-	$(document).bind('keydown || keyup', function (e) {
+	var isControlKey = function(keyCode) {
+		for (var i = 0; i < keyCodes.length; i++) {
+			if (keyCodes[i] === keyCode) return true;
+		}
+		return false;
+	};
+
+	$(document).bind('keydown keyup', function (e) {
 
 		e = e || event; // to deal with IE
-		map[e.keyCode] = e.type == 'keydown';
+		var keyCode = e.which || e.keyCode;
+		map[keyCode] = e.type == 'keydown';
 
-		if(map[keyConf[0]] || map[keyConf[1]] || map[keyConf[2]] || map[keyConf[3]]) {
+		if (isControlKey(keyCode)) {
+			e.preventDefault();
+		}
+
+	}.bind(this));
+
+	if (this._inputUpdateInterval) {
+		window.clearInterval(this._inputUpdateInterval);
+	}
+
+	this._inputUpdateInterval = window.setInterval(function() {
+		if(map[keyCodes[0]] || map[keyCodes[1]] || map[keyCodes[2]] || map[keyCodes[3]]) {
 			this._player.setIsMoving(true);
 		} else {
 			this._player.setIsMoving(false);
 		}
 
-		if(map[keyConf[0]] == true) {
+		if(map[keyCodes[0]] == true) {
 			this.moveLeft();
 		}
-		if (map[keyConf[1]] == true) {
+		if (map[keyCodes[1]] == true) {
 			this.moveRight();
 		}
-		if (map[keyConf[2]] == true) {
+		if (map[keyCodes[2]] == true) {
 			this.moveForward();
 		}
-		if (map[keyConf[3]] == true) {
+		if (map[keyCodes[3]] == true) {
 			this.moveBackwards();
 		}
-		if (map[keyConf[4]] == true) {
+		if (map[keyCodes[4]] == true) {
 			this.shoot();
 		}
+	}.bind(this), 16);
 
+	/*
+	if(this._inputUpdateInterval) {
+		window.clearInterval(this._inputUpdateInterval);
+	}
 	}.bind(this));
+	*/
 
 	/*
 	 // do the key bindings
@@ -65,9 +97,9 @@ ControlsClass.prototype.setup = function(playerRef, keyConf) {
  * Move player left.
  */
 ControlsClass.prototype.moveLeft = function() {
-	var orie = this._player.getOrientation();
-	this._player.setOrientation(orie - Conf.turnSpeed);
-	this._player.moveBy(0, 0, orie);
+	var newOrientation = this._player.getOrientation() - Conf.turnSpeed;
+	this._player.setOrientation(newOrientation);
+	this._player.moveBy(0, 0, this._player.getOrientation());
 };
 
 
@@ -76,9 +108,9 @@ ControlsClass.prototype.moveLeft = function() {
  * Move player right.
  */
 ControlsClass.prototype.moveRight = function() {
-	var orie = this._player.getOrientation();
-	this._player.setOrientation(orie + Conf.turnSpeed);
-	this._player.moveBy(0, 0, orie);
+	var newOrientation = this._player.getOrientation() + Conf.turnSpeed;
+	this._player.setOrientation(newOrientation);
+	this._player.moveBy(0, 0, this._player.getOrientation());
 };
 
 /**
