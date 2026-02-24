@@ -1,8 +1,8 @@
 /**
- * P2P-Bomberman game manager class.
+ * P2P-Tanks game manager class.
  * Handles overall game management.
  *
- * Author: Markus Konrad <post@mkonrad.net>
+ * Based on original P2P-Bomberman framework by Markus Konrad.
  */
 
 /**
@@ -20,6 +20,8 @@ function GameClass(mode) {
     this._controls 		= null;	// ControlsClass object
     this._playerManager = null;	// PlayerManagerClass object
     this._p2pComm		= null;	// P2PCommClass object (MP only)
+    this._gameOver		= false;
+    this._winnerName	= '';
 
 	this._mode = mode;	// game mode
 }
@@ -40,8 +42,8 @@ GameClass.prototype.setup = function(playerManagerRef, p2pCommRef) {
     	this._playerManager = playerManagerRef;
     }
 
-    // set up the view and the map
-    this._view.setup(MapDimensions.w, MapDimensions.h);
+    // set up the view using tile counts (20×20), not raw pixel dimensions
+    this._view.setup(MapTilesX, MapTilesY);
     this._map.setup(this._view);
 
     if (gameMode === GameModeMultiPlayer) {
@@ -61,10 +63,11 @@ GameClass.prototype.startGame = function() {
 
 	// initialize game in single player mode
 	if (this._mode === GameModeSinglePlayer) {
-		// init local player 1
+		// init local player 1 (arrow keys + B to shoot)
 		var player1 = new PlayerClass(PlayerTypeLocalKeyboardArrows);
 		player1.setup(this._view, this._playerManager, null);
 		player1.setId(0);
+		player1.setName('Player 1');
 		player1.setColor(PlayerColors[0]);
 		this._view.addEntity(player1);
 		this._playerManager.addPlayer(player1);
@@ -74,10 +77,11 @@ GameClass.prototype.startGame = function() {
 		player1Controls.setup(player1, Conf.arrowKeyMapping);
 		this._controls.push(player1Controls);
 
-		// init local player 2
+		// init local player 2 (WSAD keys + X to shoot)
 		var player2 = new PlayerClass(PlayerTypeLocalKeyboardWSAD);
 		player2.setup(this._view, this._playerManager, null);
 		player2.setId(1);
+		player2.setName('Player 2');
 		player2.setColor(PlayerColors[1]);
 		this._view.addEntity(player2);
 		this._playerManager.addPlayer(player2);
@@ -118,10 +122,44 @@ GameClass.prototype.stopGame = function() {
 }
 
 /**
- * Game round ended.
+ * Game round ended – <winner> is the surviving PlayerClass (or null for draw).
  */
-GameClass.prototype.roundEnded = function() {
-	// not implemented yet.
+GameClass.prototype.roundEnded = function(winner) {
+	this._gameOver = true;
+	this._winnerName = winner ? (winner.getName() || 'A player') : 'Nobody';
+
+	var el = document.getElementById('gameover');
+	if (el) {
+		el.textContent = this._winnerName + ' wins!';
+		el.style.display = 'block';
+	}
+}
+
+/**
+ * Draw a HUD overlay showing each player's HP.
+ */
+GameClass.prototype._drawHUD = function() {
+	if (this._gameOver) return;
+	var ctx = this._view._ctx;
+	var players = this._playerManager.getPlayers();
+
+	ctx.font = 'bold 14px monospace';
+	for (var i = 0; i < players.length; i++) {
+		var player = players[i];
+		var hp = player.getHP();
+		var maxHp = Conf.playerMaxHp;
+		var name = player.getName() || ('P' + (i + 1));
+
+		var hpStr = '';
+		for (var j = 0; j < hp; j++) hpStr += '\u2665';      // ♥
+		for (var j = hp; j < maxHp; j++) hpStr += '\u2661';  // ♡
+
+		var yPos = 18 + i * 22;
+		ctx.fillStyle = 'rgba(0,0,0,0.55)';
+		ctx.fillRect(6, yPos - 14, 160, 18);
+		ctx.fillStyle = player.getColor();
+		ctx.fillText(name + ': ' + hpStr, 10, yPos);
+	}
 }
 
 /**
@@ -129,11 +167,10 @@ GameClass.prototype.roundEnded = function() {
  */
 GameClass.prototype.frame = function() {
     this._view.update();
+    this._drawHUD();
 
     // request new frame
     requestAnimFrame(function() {
         this.frame();
     }.bind(this));
 }
-
-

@@ -25,12 +25,14 @@ EntityClass.prototype.setup = function(viewRef) {
 }
 
 /**
- * Set the position to <x> and <y>.
+ * Set the position to <x> and <y>. <angle> is optional and only updated when provided.
  */
 EntityClass.prototype.set = function(x, y, angle) {
     this.x = x;
     this.y = y;
-    this.angle = angle;
+    if (typeof angle !== 'undefined') {
+        this.angle = angle;
+    }
 }
 
 /**

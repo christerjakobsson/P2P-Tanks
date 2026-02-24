@@ -1,7 +1,7 @@
 <!DOCTYPE HTML> 
 <html lang="en"> 
 <head>
-<title>P2P Bomberman</title>
+<title>P2P Tanks</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
 <meta http-equiv="Content-Language" content="en-us"> 
 <meta http-equiv="cache-control" content="max-age=0">
@@ -12,12 +12,31 @@
 
 <link rel="stylesheet" type="text/css" href="css/bomberman.css">
 
+<style>
+  #gameover {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.85);
+    color: gold;
+    font: bold 2.5em sans-serif;
+    padding: 0.6em 1.2em;
+    border: 3px solid gold;
+    border-radius: 8px;
+    z-index: 10;
+    text-align: center;
+  }
+  #game { position: relative; }
+</style>
+
 <script type="text/javascript" src="js/lib/jquery-2.0.2.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.hotkeys.js"></script>
 <script type="text/javascript" src="js/lib/peer.min.js"></script>
 
 <!-- FULL SOURCES FOR DEVELOPMENT: -->
-<script type="text/javascript" src="js/bomberman.js"></script>
+<script type="text/javascript" src="js/tanks.js"></script>
 <script type="text/javascript" src="js/conf.js"></script>
 <script type="text/javascript" src="js/helper.js"></script>
 <script type="text/javascript" src="js/game.js"></script>
@@ -29,6 +48,7 @@
 <script type="text/javascript" src="js/view.js"></script>
 <script type="text/javascript" src="js/map.js"></script>
 <script type="text/javascript" src="js/bomb.js"></script>	
+<script type="text/javascript" src="js/bullet.js"></script>	
 <script type="text/javascript" src="js/controls.js"></script>	
 
 <!-- MINIFIED SOURCES FOR DEPLOYMENT: -->
@@ -40,14 +60,15 @@
 <body onload="init('lounge')"> 
 
 <div id="main">
-	<h1>Game lounge</h1>
+	<h1>P2P Tanks</h1>
 	
 	<div id="lounge">
-		<h2>Game help</h2>
+		<h2>Controls</h2>
 
 		<ul>
-			<li>Arrow keys: Movement.</li>
-			<li>[b]: Drop bomb.</li>
+			<li><strong>Player 1 (Arrow keys):</strong> ← → to rotate, ↑ ↓ to move, <kbd>B</kbd> to shoot.</li>
+			<li><strong>Player 2 / Hotseat (WSAD):</strong> A D to rotate, W S to move, <kbd>X</kbd> to shoot.</li>
+			<li>In <em>Multiplayer (P2P)</em> mode both players share arrow keys.</li>
 		</ul>
 
 		<div id="multiplayer_conf">
@@ -62,12 +83,13 @@
 			</form>
 		</div>
 		<div id="singleplayer_conf">
-			<input id="singleplayer_start_btn" type="button" value="Go!">
+			<input id="singleplayer_start_btn" type="button" value="Start Hotseat Game!">
 		</div>
 	</div>
 
 	<div id="game">
 		<canvas style="border: 1px solid white" id="canvas" width="640" height="640"></canvas>
+		<div id="gameover"></div>
 	</div>
 
 	<div id="playerlist">
